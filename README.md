@@ -60,6 +60,4 @@
 
 ---
 
-Estas tablas cubren los 54 casos de prueba, incluyendo pruebas normales, de error y extremas para cada funcionalidad.
-
 

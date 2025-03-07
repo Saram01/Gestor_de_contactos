@@ -15,6 +15,20 @@ def validar_contacto(nombre, telefono, email):
     
     if "@" not in email or "." not in email:
         raise InvalidEmailError(email)
+
+def test_contacto_no_encontrado(ContactNotFoundError):
+    contactos = {"Alice", 
+                 "Bob", 
+                 "Jaime"}
+    with pytest.raises(ContactNotFoundError) as exc_info:
+        buscar_contacto(contactos, "Vanessa")
+        assert  "El contacto no se encontro" in str(exc_info.value)
+
+
+def test_email_invalido_muy_largo():
+    with pytest.raises(InvalidEmailTooLong):
+        validar_contacto("Laura", "9876543215", "lauraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@correo.com")
+  
     
 def test_crear_contacto_valido():
     contacto = Contacto("Luis", "123456789", "luis@example.com", "Amigo")

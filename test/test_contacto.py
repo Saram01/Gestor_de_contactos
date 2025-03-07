@@ -20,50 +20,50 @@ def test_crear_contacto_valido():
     contacto = Contacto("Luis", "123456789", "luis@example.com", "Amigo")
     assert contacto.nombre == "Luis"
     assert contacto.telefono == "123456789"
-    assert contacto.email == "luis@example.com"
+    assert contacto.email == "luis@correo.com"
     assert contacto.categoria == "Amigo"
 
 def test_telefono_invalido_muy_corto():
     with pytest.raises(InvalidPhoneNumberError):
-        validar_contacto("Luis", "123", "luis@example.com")
+        validar_contacto("Luis", "123", "luis@correo.com")
 
 def test_telefono_invalido_no_numerico():
     with pytest.raises(InvalidPhoneNumberError):
-        validar_contacto("Ana", "ABC1234", "ana@example.com")
+        validar_contacto("Ana", "ABC1234", "ana@correo.com")
 
 def test_telefono_demasiado_largo():
     with pytest.raises(InvalidPhoneNumberError):
-        validar_contacto("Pedro", "1234567890123456", "pedro@example.com")
+        validar_contacto("Pedro", "1234567890123456", "pedro@correo.com")
 
 def test_email_invalido_sin_arroba():
     with pytest.raises(InvalidEmailError):
-        validar_contacto("Carlos", "987654321", "carlos.example.com")
+        validar_contacto("Carlos", "987654321", "carlos.correo.com")
 
 def test_email_invalido_sin_punto():
     with pytest.raises(InvalidEmailError):
-        validar_contacto("Maria", "987654321", "maria@examplecom")
+        validar_contacto("Maria", "987654321", "maria@correocom")
 
 def test_email_valido_con_caracteres_especiales():
-    contacto = Contacto("Ana", "987654321", "ana+test@example.com", "Familia")
-    assert contacto.email == "ana+test@example.com"
+    contacto = Contacto("Ana", "987654321", "ana+test@correo.com", "Familia")
+    assert contacto.email == "ana+test@correo.com"
 
 def test_nombre_vacio():
     with pytest.raises(ContactError):
-        validar_contacto("", "987654321", "test@example.com")
+        validar_contacto("", "987654321", "test@correo.com")
 
 def test_telefono_vacio():
     with pytest.raises(InvalidPhoneNumberError):
-        validar_contacto("Carlos", "", "carlos@example.com")
+        validar_contacto("Carlos", "", "carlos@correo.com")
 
 def test_email_vacio():
     with pytest.raises(InvalidEmailError):
         validar_contacto("Carlos", "987654321", "")
 
 def test_categoria_vacia():
-    contacto = Contacto("Luis", "123456789", "luis@example.com", "")
+    contacto = Contacto("Luis", "123456789", "luis@correo.com", "")
     assert contacto.categoria == ""
 
 def test_nombre_con_caracteres_especiales():
-    contacto = Contacto("Lu!s@", "123456789", "luis@example.com", "Amigo")
+    contacto = Contacto("Lu!s@", "123456789", "luis@correo.com", "Amigo")
     assert contacto.nombre == "Lu!s@"
     

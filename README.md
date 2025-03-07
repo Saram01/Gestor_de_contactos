@@ -10,7 +10,6 @@
 6. El sistema debe manejar errores correctamente, mostrando mensajes adecuados en caso de entradas inválidas.
 7. La exportación de contactos debe generar archivos en formato .vcf.
 8. La importación de contactos debe ser capaz de procesar archivos .vcf válidos y detectar errores en formatos incorrectos.
-9. El sistema debe ser capaz de manejar grandes volúmenes de datos sin afectar el rendimiento.
 
 **Tablas de Casos de Prueba**
 

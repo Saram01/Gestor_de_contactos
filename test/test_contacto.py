@@ -50,4 +50,20 @@ def test_email_valido_con_caracteres_especiales():
 def test_nombre_vacio():
     with pytest.raises(ContactError):
         validar_contacto("", "987654321", "test@example.com")
+
+def test_telefono_vacio():
+    with pytest.raises(InvalidPhoneNumberError):
+        validar_contacto("Carlos", "", "carlos@example.com")
+
+def test_email_vacio():
+    with pytest.raises(InvalidEmailError):
+        validar_contacto("Carlos", "987654321", "")
+
+def test_categoria_vacia():
+    contacto = Contacto("Luis", "123456789", "luis@example.com", "")
+    assert contacto.categoria == ""
+
+def test_nombre_con_caracteres_especiales():
+    contacto = Contacto("Lu!s@", "123456789", "luis@example.com", "Amigo")
+    assert contacto.nombre == "Lu!s@"
     

@@ -9,9 +9,14 @@ class InvalidEmailError(ContactError):
     def __init__(self, email):
         super().__init__(f"Correo electrónico inválido: {email}. Debe contener '@' y '.'.")
 
-class ContactNotFoundError(ContactError):
+class ContactNotFoundError(Exception):
     def __init__(self, nombre):
         super().__init__(f"El contacto '{nombre}' no fue encontrado.")
+
+    def buscar_contacto(contactos, nombre):
+        if nombre not in contactos:
+            raise ContactNotFoundError(nombre)
+        return contactos[nombre]
 
 class DuplicateContactError(ContactError):
     def __init__(self, nombre):

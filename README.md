@@ -4,7 +4,7 @@
 
 1. El sistema debe permitir la creación, edición, filtrado, exportación e importación de contactos.
 2. Los contactos deben incluir al menos un nombre, un número de teléfono, un correo electrónico y una categoría.
-3. Los números de teléfono deben ser numéricos y contener un mínimo de 7 dígitos.
+3. Los números de teléfono deben ser numéricos y contener un mínimo de 10 dígitos.
 4. El correo electrónico debe tener un formato válido.
 5. Las categorías deben ser predefinidas o personalizables por el usuario.
 6. El sistema debe manejar errores correctamente, mostrando mensajes adecuados en caso de entradas inválidas.

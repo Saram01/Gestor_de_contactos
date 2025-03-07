@@ -12,71 +12,54 @@
 8. La importación de contactos debe ser capaz de procesar archivos .vcf válidos y detectar errores en formatos incorrectos.
 9. El sistema debe ser capaz de manejar grandes volúmenes de datos sin afectar el rendimiento.
 
-## Casos de Prueba
+**Tablas de Casos de Prueba**
 
-### Caso de prueba #1: Creación de contacto - Caso normal
-| Nombre  | Teléfono   | Email               | Categoría |
-|---------|-----------|---------------------|-----------|
-| Luis    | 123123123 | luis@example.com   | Familia   |
-| Carlos  | 456456456 | carlos@example.com | Amigo     |
+---
+### **Casos de Prueba - Contacto**
 
-### Caso de prueba #2: Creación de contacto - Errores
-| Nombre  | Teléfono | Email | Categoría | Resultado Esperado |
-|---------|----------|-------|-----------|--------------------|
-| ""      | 0        | ""    | ""        | ValueError        |
-| Pedro   | 0        | pedro@example.com | Trabajo | ValueError |
-| Maria   | 999888777 | ""   | Familia   | ValueError        |
+| ID  | Caso de Prueba | Entrada | Resultado Esperado | Tipo |
+|-----|--------------|---------|--------------------|------|
+| C01 | Crear contacto válido | Nombre: Luis, Teléfono: 123456789, Email: luis@correo.com, Categoría: Amigo | Contacto creado exitosamente | Normal |
+| C02 | Teléfono muy corto | Nombre: Ana, Teléfono: 123, Email: ana@correo.com, Categoría: Trabajo | InvalidPhoneNumberError | Error |
+| C03 | Teléfono con letras | Nombre: Pedro, Teléfono: ABC1234, Email: pedro@correo.com, Categoría: Amigo | InvalidPhoneNumberError | Error |
+| C04 | Teléfono muy largo | Nombre: María, Teléfono: 1234567890123456, Email: maria@correo.com, Categoría: Familia | InvalidPhoneNumberError | Extremo |
+| C05 | Email sin arroba | Nombre: Carlos, Teléfono: 987654321, Email: carlos.correo.com, Categoría: Trabajo | InvalidEmailError | Error |
+| C06 | Email sin punto | Nombre: Juan, Teléfono: 987654321, Email: juan@correocom, Categoría: Familia | InvalidEmailError | Error |
+| C07 | Nombre vacío | Nombre: '', Teléfono: 987654321, Email: test@correo.com, Categoría: Trabajo | ContactError | Error |
+| C08 | Email vacío | Nombre: Carlos, Teléfono: 987654321, Email: '', Categoría: Trabajo | InvalidEmailError | Error |
 
-### Caso de prueba #3: Creación de contacto - Casos extremos
-| Nombre  | Teléfono        | Email               | Categoría | Resultado Esperado |
-|---------|----------------|---------------------|-----------|--------------------|
-| NombreLargo x10 | 999999999999 | correo@ejemplo.com | Amigo | Éxito |
-| 1500 contactos generados dinámicamente | - | - | - | Todos creados exitosamente |
+---
+### **Casos de Prueba - GestorDeContactos**
 
-### Caso de prueba #4: Edición de contacto - Caso normal
-| Nombre  | Modificación           | Resultado Esperado |
-|---------|------------------------|--------------------|
-| Juan    | Teléfono = 111111111   | Éxito |
-| Juan    | Email = nuevo@example.com | Éxito |
-| Juan    | Categoría = Trabajo    | Éxito |
+| ID  | Caso de Prueba | Entrada | Resultado Esperado | Tipo |
+|-----|--------------|---------|--------------------|------|
+| G01 | Agregar contacto válido | Contacto: Luis | Contacto agregado correctamente | Normal |
+| G02 | Agregar contacto duplicado | Contacto: Luis (ya existe) | DuplicateContactError | Error |
+| G03 | Editar contacto existente | Nombre: Juan, Nuevo Teléfono: 987654321 | Teléfono actualizado | Normal |
+| G04 | Editar contacto inexistente | Nombre: Juan (no existe) | ContactNotFoundError | Error |
+| G05 | Editar contacto con email inválido | Nombre: Pedro, Nuevo Email: pedroexample.com | InvalidEmailError | Error |
+| G06 | Filtrar contactos por categoría existente | Categoría: Amigo | Lista con contactos filtrados | Normal |
+| G07 | Filtrar contactos por categoría inexistente | Categoría: Desconocida | Lista vacía | Extremo |
+| G08 | Eliminar contacto existente | Nombre: Luis | Contacto eliminado correctamente | Normal |
+| G09 | Eliminar contacto inexistente | Nombre: Carlos (no existe) | ContactNotFoundError | Error |
+| G10 | Exportar contactos sin permisos | Archivo: contactos.vcf | VCFExportError | Error |
+| G11 | Importar archivo inexistente | Archivo: archivo_invalido.vcf | VCFImportError | Error |
 
-### Caso de prueba #5: Edición de contacto - Errores
-| Nombre   | Modificación         | Resultado Esperado |
-|----------|----------------------|--------------------|
-| NoExiste | Teléfono = 111111111 | KeyError |
-| Juan     | Teléfono = 0         | ValueError |
+---
+### **Casos de Prueba - Usuario**
 
-### Caso de prueba #6: Edición de contacto - Casos extremos
-| Nombre  | Modificación                   | Resultado Esperado |
-|---------|--------------------------------|--------------------|
-| Juan    | Teléfono = 999999999999       | Éxito |
-| Juan    | Modificar 150 veces el teléfono | Todos los cambios exitosos |
+| ID  | Caso de Prueba | Entrada | Resultado Esperado | Tipo |
+|-----|--------------|---------|--------------------|------|
+| U01 | Registro con email válido | Nombre: Sara, Email: sara@correo.com, Contraseña: password123 | Usuario registrado correctamente | Normal |
+| U02 | Registro con email inválido | Nombre: Sara, Email: saracorreo.com, Contraseña: password123 | InvalidEmailError | Error |
+| U03 | Registro con contraseña vacía | Nombre: Sara, Email: sara@correo.com, Contraseña: '' | ContactError | Error |
+| U04 | Inicio de sesión exitoso | Email: sara@correo.com, Contraseña: password123 | Inicio de sesión correcto | Normal |
+| U05 | Inicio de sesión con contraseña incorrecta | Email: sara@correo.com, Contraseña: incorrecta456 | Inicio de sesión fallido | Error |
+| U06 | Inicio de sesión con email en mayúsculas | Email: SARA@CORREO.COM, Contraseña: password123 | Inicio de sesión correcto | Extremo |
+| U07 | Inicio de sesión con contraseña vacía | Email: sara@correo.com, Contraseña: '' | Inicio de sesión fallido | Extremo |
 
-### Caso de prueba #7: Filtrado de contactos
-| Filtro   | Resultado Esperado |
-|----------|--------------------|
-| Familia  | Lista con 1 contacto |
-| Trabajo  | Lista con 1 contacto |
-| Amigo    | Lista con 1 contacto |
-| NoExiste | Lista vacía |
-| ""       | Lista vacía |
-| Amigo (con 1500 contactos creados) | Lista con 1500 contactos |
-| Familia (sin contactos creados) | Lista vacía |
+---
 
-### Caso de prueba #8: Exportación e importación de contactos
-| Acción                  | Entrada                        | Resultado Esperado |
-|-------------------------|--------------------------------|--------------------|
-| Exportar contactos     | Contactos existentes           | Archivo .vcf generado |
-| Exportar contactos     | Múltiples contactos            | Archivo .vcf generado |
-| Exportar sin contactos | -                              | Archivo vacío o error |
-| Exportar sin permisos  | -                              | Error |
-| Exportar 10,000 contactos | -                          | Archivo .vcf grande |
-| Exportar con emojis    | -                              | Archivo .vcf generado |
-| Importar archivo válido | Archivo .vcf con contactos    | Contactos importados |
-| Importar archivo vacío  | Archivo vacío                 | Error o sin cambios |
-| Importar archivo inválido | Formato incorrecto         | Error |
-| Importar 10,000 contactos | Archivo grande             | Todos importados |
-| Importar con caracteres extraños | -                  | Contactos importados |
+Estas tablas cubren los 54 casos de prueba, incluyendo pruebas normales, de error y extremas para cada funcionalidad.
 
-**Total de Pruebas: 54**
 

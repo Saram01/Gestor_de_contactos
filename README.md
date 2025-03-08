@@ -28,6 +28,10 @@
 | C08 | Email vacío | Nombre: Carlos, Teléfono: 987654321, Email: '', Categoría: Trabajo | InvalidEmailError | Error |
 | C09 | Email muy largo | Nombre: Carlos, Teléfono: 987654321, Email: 'lauraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@correo.com', Categoría: Trabajo | InvalidEmailTooLong | Extremo |
 | C10 | Email sin dominio valido | Nombre: Sofia, Teléfono: 9876543210, Email: sofia@correo, Categoría: Amigo | InvalidEmailError |
+| C11 | Nombre solo con espacios | Nombre: "   ", Telefono: 9876543210, Email: espacios@correo.com| ContactError | Error |
+| C12 | Contacto sin categoria | Nombre: David, Telefono: 9876543210, Email: david@correo.com, Categoria: "" | ContactError | Error |
+
+
 
 ---
 ### **Casos de Prueba - GestorDeContactos**
@@ -45,6 +49,13 @@
 | G09 | Eliminar contacto inexistente | Nombre: Carlos (no existe) | ContactNotFoundError | Error |
 | G10 | Exportar contactos sin permisos | Archivo: contactos.vcf | VCFExportError | Error |
 | G11 | Importar archivo inexistente | Archivo: archivo_invalido.vcf | VCFImportError | Error |
+| G12 | Mismo nombre diferentes datos | Nombre: Daniel, Teléfono: 1234567890, Email: daniel@correo.com, Categoría: Trabajo
+Nombre: Daniel, Teléfono: 0987654321, Email: daniel.otro@correo.com, Categoría: Familia | crear un contacto con mismo nombre | Normal |
+| G13 | Exportar contacto error | /ruta/invalida/contactos.vcf | VCFImportError | Error |
+| G14 | Importar VCF corrupto | /ruta/invalida/contactos_corruptos.vcf | VCFImportError |
+| G15 | Buscar Contacto con telefono invalido | +12-34567890 | InvalidPhoneNumberError |
+| G16 | Agregar contacto con nombre excesivo | Nombre: nombre_largo, Telefono: 9876543210, Email: contacto@correo.com, Categoria: Amigo | ContactError |
+| G17 | Categoria muy larga | Nombre: Marta, Telefono: 9876543210, Email: marta@correo.com Categoria: A...AA | ContactError |
 
 ---
 ### **Casos de Prueba - Usuario**
@@ -58,6 +69,14 @@
 | U05 | Inicio de sesión con contraseña incorrecta | Email: sara@correo.com, Contraseña: incorrecta456 | Inicio de sesión fallido | Error |
 | U06 | Inicio de sesión con email en mayúsculas | Email: SARA@CORREO.COM, Contraseña: password123 | Inicio de sesión correcto | Extremo |
 | U07 | Inicio de sesión con contraseña vacía | Email: sara@correo.com, Contraseña: '' | Inicio de sesión fallido | Extremo |
+| U08 | Registro con contraseña muy corta | Email: carlos@correo.com, Contraseña: 123 | Contraseña muy corta | Error |
+| U09 | Usuario sin email registrado | Email: carlos@correo.com, Contraseña: password123 | El correo no existe | Error |
+| U10 | Nombre de usuario invalido | Usuario: J@cob!, Email: jacob@correo.com, Contraseña: password123 | Nombre de usuario invalido | Error |
+| U11 | Registro de Email vacio | Email: "  ", Contraseña: password123 | InvalidEmailError | Error |
+| U12 | Contraseña de solo espacios | Correo: ana@correo.com, Contraseña: "  " | Contraseña invalida | Error |
+| U13 | Inicio de sesion con email vacio | Correo: "", Contraseña: password123 | Correo invalido | Error |
+| U14 | Email y contraseña incorrectos | Email: elena@correo.com, Contraseña: password123 | Correo y contraseña incorrectos | Error |
+| U15 | Registro con nombre de usuario vacio | Usuario: "", Email: usuario@correo.com, Contraseña: abcd123 | Usuario invalido | Error |
 
 ---
 

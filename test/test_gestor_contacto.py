@@ -101,3 +101,39 @@ def test_editar_contacto_eliminar_categoria():
     gestor.agregar_contacto(contacto)
     gestor.editar_contacto("Andrés", categoria="")
     assert contacto.categoria == ""
+#10
+def test_agregar_contacto_mismo_nombre_diferente_datos():
+    gestor = GestorDeContactos()
+    contacto1 = Contacto("Daniel", "1234567890", "daniel@correo.com", "Trabajo")
+    contacto2 = Contacto("Daniel", "0987654321", "daniel.otro@correo.com", "Familia")
+
+    gestor.agregar_contacto(contacto1)
+    gestor.agregar_contacto(contacto2)
+
+    assert len(gestor.contactos) == 2
+#11
+def test_exportar_contactos_error():
+    gestor = GestorDeContactos()
+    with pytest.raises(VCFExportError):
+        gestor.exportar_a_vcf("/ruta/invalida/contactos.vcf")
+#12
+def test_importar_contactos_vcf_corrupto():
+    gestor = GestorDeContactos()
+    with pytest.raises(VCFImportError):
+        gestor.importar_desde_vcf("/ruta/invalida/contactos_corruptos.vcf")
+#13
+def test_buscar_contacto_telefono_invalido():
+    gestor = GestorDeContactos()
+    with pytest.raises(InvalidPhoneNumberError):
+        gestor.buscar_contacto("+12-34567890")
+#14
+def test_agregar_contacto_nombre_excesivamente_largo():
+    gestor = GestorDeContactos()
+    nombre_largo = "A" * 300  # Un nombre de 300 caracteres
+    with pytest.raises(ContactError):
+        gestor.agregar_contacto(nombre_largo, "9876543210", "contacto@correo.com", "Amigo")
+#15
+def test_agregar_contacto_categoria_muy_larga():
+    gestor = GestorDeContactos()
+    with pytest.raises(ContactError):
+        gestor.agregar_contacto(Contacto("Marta", "9876543210", "marta@correo.com", "A" * 101))

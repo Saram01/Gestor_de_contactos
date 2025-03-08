@@ -35,10 +35,9 @@ def test_usuario_login_email_no_registrado():
     usuario = Usuario("Carlos", "carlos@correo.com", "password123")
     assert not usuario.iniciar_sesion("no_existe@correo.com", "password123")
 #4
-def test_agregar_contacto_categoria_muy_larga():
-    gestor = GestorDeContactos()
+def test_usuario_registro_usuario_invalido():
     with pytest.raises(ContactError):
-        gestor.agregar_contacto(Contacto("Marta", "9876543210", "marta@correo.com", "A" * 101))
+        Usuario("J@c0b!", "jacob@correo.com", "password123")
 #5
 def test_usuario_registro_email_vacio():
     with pytest.raises(InvalidEmailError):

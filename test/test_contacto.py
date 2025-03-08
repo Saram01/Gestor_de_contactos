@@ -81,3 +81,44 @@ def test_nombre_con_caracteres_especiales():
     contacto = Contacto("Lu!s@", "123456789", "luis@correo.com", "Amigo")
     assert contacto.nombre == "Lu!s@"
     
+# parte de Jenn
+
+def test_email_sin_dominio_valido():
+    with pytest.raises(InvalidEmailError):
+        validar_contacto("Sofia", "9876543210", "sofia@correo", "Amigo")
+#2
+def test_contacto_duplicado():
+    gestor = GestorDeContactos()
+    gestor.agregar_contacto("Daniel", "1234567890", "daniel@correo.com", "Trabajo")
+    with pytest.raises(DuplicateContactError):
+        gestor.agregar_contacto("Daniel", "1234567890", "daniel@correo.com", "Trabajo")
+#3
+def test_modificar_contacto_inexistente():
+    gestor = GestorDeContactos()
+    with pytest.raises(ContactNotFoundError):
+        gestor.modificar_contacto("0000000000", "Nuevo Nombre", "nuevo@correo.com", "Amigo")
+#4
+def test_exportar_contactos_error():
+    gestor = GestorDeContactos()
+    with pytest.raises(VCFExportError):
+        gestor.exportar_a_vcf("/ruta/invalida/contactos.vcf")
+#5
+def test_importar_contactos_vcf_corrupto():
+    gestor = GestorDeContactos()
+    with pytest.raises(VCFImportError):
+        gestor.importar_desde_vcf("/ruta/invalida/contactos_corruptos.vcf")
+#7
+def test_nombre_solo_espacios():
+    with pytest.raises(ContactError):
+        validar_contacto("   ", "9876543210", "espacios@correo.com")
+#8
+def test_buscar_contacto_telefono_invalido():
+    gestor = GestorDeContactos()
+    with pytest.raises(InvalidPhoneNumberError):
+        gestor.buscar_contacto("+12-34567890")
+#9
+def test_agregar_contacto_nombre_excesivamente_largo():
+    gestor = GestorDeContactos()
+    nombre_largo = "A" * 300  # Un nombre de 300 caracteres
+    with pytest.raises(ContactError):
+        gestor.agregar_contacto(nombre_largo, "9876543210", "contacto@correo.com", "Amigo")

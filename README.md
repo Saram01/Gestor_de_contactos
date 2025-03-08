@@ -27,6 +27,7 @@
 | C07 | Nombre vacío | Nombre: '', Teléfono: 987654321, Email: test@correo.com, Categoría: Trabajo | ContactError | Error |
 | C08 | Email vacío | Nombre: Carlos, Teléfono: 987654321, Email: '', Categoría: Trabajo | InvalidEmailError | Error |
 | C09 | Email muy largo | Nombre: Carlos, Teléfono: 987654321, Email: 'lauraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@correo.com', Categoría: Trabajo | InvalidEmailTooLong | Extremo |
+| C10 | Email sin dominio valido | Nombre: Sofia, Teléfono: 9876543210, Email: sofia@correo, Categoría: Amigo | InvalidEmailError |
 
 ---
 ### **Casos de Prueba - GestorDeContactos**

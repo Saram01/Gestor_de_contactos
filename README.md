@@ -27,7 +27,7 @@
 | C07 | Nombre vacío | Nombre: '', Teléfono: 987654321, Email: test@correo.com, Categoría: Trabajo | ContactError | Error |
 | C08 | Email vacío | Nombre: Carlos, Teléfono: 987654321, Email: '', Categoría: Trabajo | InvalidEmailError | Error |
 | C09 | Email muy largo | Nombre: Carlos, Teléfono: 987654321, Email: 'lauraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@correo.com', Categoría: Trabajo | InvalidEmailTooLong | Extremo |
-| C10 | Email sin dominio valido | Nombre: Sofia, Teléfono: 9876543210, Email: sofia@correo, Categoría: Amigo | InvalidEmailError |
+| C10 | Email sin dominio valido | Nombre: Sofia, Teléfono: 9876543210, Email: sofia@correo, Categoría: Amigo | InvalidEmailError | error |
 | C11 | Nombre solo con espacios | Nombre: "   ", Telefono: 9876543210, Email: espacios@correo.com| ContactError | Error |
 | C12 | Contacto sin categoria | Nombre: David, Telefono: 9876543210, Email: david@correo.com, Categoria: "" | ContactError | Error |
 
@@ -49,13 +49,12 @@
 | G09 | Eliminar contacto inexistente | Nombre: Carlos (no existe) | ContactNotFoundError | Error |
 | G10 | Exportar contactos sin permisos | Archivo: contactos.vcf | VCFExportError | Error |
 | G11 | Importar archivo inexistente | Archivo: archivo_invalido.vcf | VCFImportError | Error |
-| G12 | Mismo nombre diferentes datos | Nombre: Daniel, Teléfono: 1234567890, Email: daniel@correo.com, Categoría: Trabajo
-Nombre: Daniel, Teléfono: 0987654321, Email: daniel.otro@correo.com, Categoría: Familia | crear un contacto con mismo nombre | Normal |
+| G12 | Mismo nombre diferentes datos | Nombre: Daniel, Teléfono: 1234567890, Email: daniel@correo.com, Categoría: Trabajo, Nombre: Daniel, Teléfono: 0987654321, Email: daniel.otro@correo.com, Categoría: Familia | Crear un contacto con mismo nombre | Normal |
 | G13 | Exportar contacto error | /ruta/invalida/contactos.vcf | VCFImportError | Error |
-| G14 | Importar VCF corrupto | /ruta/invalida/contactos_corruptos.vcf | VCFImportError |
-| G15 | Buscar Contacto con telefono invalido | +12-34567890 | InvalidPhoneNumberError |
+| G14 | Importar VCF corrupto | /ruta/invalida/contactos_corruptos.vcf | VCFImportError | Error |
+| G15 | Buscar Contacto con telefono invalido | +12-34567890 | InvalidPhoneNumberError | Error |
 | G16 | Agregar contacto con nombre excesivo | Nombre: nombre_largo, Telefono: 9876543210, Email: contacto@correo.com, Categoria: Amigo | ContactError |
-| G17 | Categoria muy larga | Nombre: Marta, Telefono: 9876543210, Email: marta@correo.com Categoria: A...AA | ContactError |
+| G17 | Categoria muy larga | Nombre: Marta, Telefono: 9876543210, Email: marta@correo.com Categoria: A...AA | ContactError | Error |
 
 ---
 ### **Casos de Prueba - Usuario**

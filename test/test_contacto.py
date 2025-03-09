@@ -80,17 +80,15 @@ def test_categoria_vacia():
 def test_nombre_con_caracteres_especiales():
     contacto = Contacto("Lu!s@", "123456789", "luis@correo.com", "Amigo")
     assert contacto.nombre == "Lu!s@"
-    
-# parte de Jenn
 
 def test_email_sin_dominio_valido():
     with pytest.raises(InvalidEmailError):
         validar_contacto("Sofia", "9876543210", "sofia@correo", "Amigo")
-#2
+
 def test_nombre_solo_espacios():
     with pytest.raises(ContactError):
         validar_contacto("   ", "9876543210", "espacios@correo.com")
-#3
+
 def test_contacto_sin_categoria():
     contacto = Contacto("David", "9876543210", "david@correo.com", None)
     assert contacto.categoria is None

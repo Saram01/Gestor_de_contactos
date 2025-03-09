@@ -26,35 +26,34 @@ def test_usuario_login_contraseña_incorrecta():
     usuario = Usuario("Sara", "sara@correo.com", "password123")
     assert not usuario.iniciar_sesion("sara@correo.com", "incorrecta456")
 
-# parte de Jenn x3 xd
 def test_usuario_registro_contraseña_muy_corta():
     with pytest.raises(ContactError):
         Usuario("Carlos", "carlos@correo.com", "123")
-#2
+
 def test_usuario_login_email_no_registrado():
     usuario = Usuario("Carlos", "carlos@correo.com", "password123")
     assert not usuario.iniciar_sesion("no_existe@correo.com", "password123")
-#4
+
 def test_usuario_registro_usuario_invalido():
     with pytest.raises(ContactError):
         Usuario("J@c0b!", "jacob@correo.com", "password123")
-#5
+
 def test_usuario_registro_email_vacio():
     with pytest.raises(InvalidEmailError):
         Usuario("Pedro", "", "password123")
-#6
+
 def test_usuario_registro_contraseña_solo_espacios():
     with pytest.raises(ContactError):
         Usuario("Ana", "ana@correo.com", "     ")
-#7
+
 def test_usuario_login_email_vacio():
     usuario = Usuario("Ana", "ana@correo.com", "password123")
     assert not usuario.iniciar_sesion("", "password123")
-#8
+
 def test_usuario_login_email_y_contraseña_incorrectos():
     usuario = Usuario("Elena", "elena@correo.com", "password123")
     assert not usuario.iniciar_sesion("emailIncorrecto@correo.com", "claveIncorrecta456")
-#9
+
 def test_usuario_registro_nombre_vacio():
     with pytest.raises(ContactError):
         Usuario("", "usuario@correo.com", "password123")

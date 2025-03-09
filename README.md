@@ -53,7 +53,7 @@
 | G13 | Exportar contacto error | /ruta/invalida/contactos.vcf | VCFImportError | Error |
 | G14 | Importar VCF corrupto | /ruta/invalida/contactos_corruptos.vcf | VCFImportError | Error |
 | G15 | Buscar Contacto con telefono invalido | +12-34567890 | InvalidPhoneNumberError | Error |
-| G16 | Agregar contacto con nombre excesivo | Nombre: nombre_largo, Telefono: 9876543210, Email: contacto@correo.com, Categoria: Amigo | ContactError |
+| G16 | Agregar contacto con nombre excesivo | Nombre: nombre_largo, Telefono: 9876543210, Email: contacto@correo.com, Categoria: Amigo | ContactError | Error |
 | G17 | Categoria muy larga | Nombre: Marta, Telefono: 9876543210, Email: marta@correo.com Categoria: A...AA | ContactError | Error |
 
 ---

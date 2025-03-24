@@ -1,12 +1,35 @@
 import pytest
-import re
 from src.model.excepciones import (InvalidPhoneNumberError, InvalidEmailError, 
                                    ContactNotFoundError, DuplicateContactError, 
-                                   VCFExportError, VCFImportError, ContactError)
+                                   VCFExportError, VCFImportError, ContactError,
+                                   InvalidEmailTooLong)
 from src.model.contactos import Contacto
-from src.model.gestor_contactos import GestorDeContactos
-from src.model.usuario import Usuario
 
+def validar_contacto(nombre, telefono, email):
+    if not nombre:
+        raise ContactError("El nombre del contacto no puede estar vacío.")
+    
+    if not telefono.isdigit() or len(telefono) < 10:
+        raise InvalidPhoneNumberError(telefono)
+    
+    if "@" not in email or "." not in email:
+        raise InvalidEmailError(email)
+
+
+def buscar_contacto(contactos, nombre):
+    if nombre not in contactos:
+        raise ContactNotFoundError(nombre)
+
+def test_contacto_no_encontrado():
+    contactos = ["Alice", "Bob", "Jaime"]
+    with pytest.raises(ContactNotFoundError, match="El contacto 'Vanessa' no fue encontrado en la lista."):
+        buscar_contacto(contactos, "Vanessa")
+
+
+def test_email_invalido_muy_largo():
+    with pytest.raises(InvalidEmailTooLong):
+        validar_contacto("Laura", "9876543215", "lauraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@correo.com")
+  
 def test_crear_contacto_valido():
     contacto = Contacto("Luis", "1234567890", "luis@example.com", "Amigo")
     assert contacto.nombre == "Luis"
@@ -43,5 +66,22 @@ def test_email_sin_dominio_valido():
     with pytest.raises(InvalidEmailError, match="Correo electrónico inválido"):
         Contacto("Sofia", "9876543210", "sofia@correo", "Familia")
 
+def test_categoria_vacia():
+    contacto = Contacto("Luis", "123456789", "luis@correo.com", "")
+    assert contacto.categoria == ""
 
-    
+def test_nombre_con_caracteres_especiales():
+    contacto = Contacto("Lu!s@", "123456789", "luis@correo.com", "Amigo")
+    assert contacto.nombre == "Lu!s@"
+
+def test_email_sin_dominio_valido():
+    with pytest.raises(InvalidEmailError):
+        validar_contacto("Sofia", "9876543210", "sofia@correo", "Amigo")
+
+def test_nombre_solo_espacios():
+    with pytest.raises(ContactError):
+        validar_contacto("   ", "9876543210", "espacios@correo.com")
+
+def test_contacto_sin_categoria():
+    contacto = Contacto("David", "9876543210", "david@correo.com", None)
+    assert contacto.categoria is None

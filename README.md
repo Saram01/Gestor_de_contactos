@@ -4,13 +4,12 @@
 
 1. El sistema debe permitir la creación, edición, filtrado, exportación e importación de contactos.
 2. Los contactos deben incluir al menos un nombre, un número de teléfono, un correo electrónico y una categoría.
-3. Los números de teléfono deben ser numéricos y contener un mínimo de 7 dígitos.
+3. Los números de teléfono deben ser numéricos y contener un mínimo de 10 dígitos.
 4. El correo electrónico debe tener un formato válido.
 5. Las categorías deben ser predefinidas o personalizables por el usuario.
 6. El sistema debe manejar errores correctamente, mostrando mensajes adecuados en caso de entradas inválidas.
 7. La exportación de contactos debe generar archivos en formato .vcf.
 8. La importación de contactos debe ser capaz de procesar archivos .vcf válidos y detectar errores en formatos incorrectos.
-9. El sistema debe ser capaz de manejar grandes volúmenes de datos sin afectar el rendimiento.
 
 **Tablas de Casos de Prueba**
 
@@ -27,6 +26,12 @@
 | C06 | Email sin punto | Nombre: Juan, Teléfono: 987654321, Email: juan@correocom, Categoría: Familia | InvalidEmailError | Error |
 | C07 | Nombre vacío | Nombre: '', Teléfono: 987654321, Email: test@correo.com, Categoría: Trabajo | ContactError | Error |
 | C08 | Email vacío | Nombre: Carlos, Teléfono: 987654321, Email: '', Categoría: Trabajo | InvalidEmailError | Error |
+| C09 | Email muy largo | Nombre: Carlos, Teléfono: 987654321, Email: 'lauraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@correo.com', Categoría: Trabajo | InvalidEmailTooLong | Extremo |
+| C10 | Email sin dominio valido | Nombre: Sofia, Teléfono: 9876543210, Email: sofia@correo, Categoría: Amigo | InvalidEmailError | error |
+| C11 | Nombre solo con espacios | Nombre: "   ", Telefono: 9876543210, Email: espacios@correo.com| ContactError | Error |
+| C12 | Contacto sin categoria | Nombre: David, Telefono: 9876543210, Email: david@correo.com, Categoria: "" | ContactError | Error |
+
+
 
 ---
 ### **Casos de Prueba - GestorDeContactos**
@@ -44,6 +49,12 @@
 | G09 | Eliminar contacto inexistente | Nombre: Carlos (no existe) | ContactNotFoundError | Error |
 | G10 | Exportar contactos sin permisos | Archivo: contactos.vcf | VCFExportError | Error |
 | G11 | Importar archivo inexistente | Archivo: archivo_invalido.vcf | VCFImportError | Error |
+| G12 | Mismo nombre diferentes datos | Nombre: Daniel, Teléfono: 1234567890, Email: daniel@correo.com, Categoría: Trabajo, Nombre: Daniel, Teléfono: 0987654321, Email: daniel.otro@correo.com, Categoría: Familia | Crear un contacto con mismo nombre | Normal |
+| G13 | Exportar contacto error | /ruta/invalida/contactos.vcf | VCFImportError | Error |
+| G14 | Importar VCF corrupto | /ruta/invalida/contactos_corruptos.vcf | VCFImportError | Error |
+| G15 | Buscar Contacto con telefono invalido | +12-34567890 | InvalidPhoneNumberError | Error |
+| G16 | Agregar contacto con nombre excesivo | Nombre: nombre_largo, Telefono: 9876543210, Email: contacto@correo.com, Categoria: Amigo | ContactError | Error |
+| G17 | Categoria muy larga | Nombre: Marta, Telefono: 9876543210, Email: marta@correo.com Categoria: A...AA | ContactError | Error |
 
 ---
 ### **Casos de Prueba - Usuario**
@@ -57,6 +68,14 @@
 | U05 | Inicio de sesión con contraseña incorrecta | Email: sara@correo.com, Contraseña: incorrecta456 | Inicio de sesión fallido | Error |
 | U06 | Inicio de sesión con email en mayúsculas | Email: SARA@CORREO.COM, Contraseña: password123 | Inicio de sesión correcto | Extremo |
 | U07 | Inicio de sesión con contraseña vacía | Email: sara@correo.com, Contraseña: '' | Inicio de sesión fallido | Extremo |
+| U08 | Registro con contraseña muy corta | Email: carlos@correo.com, Contraseña: 123 | Contraseña muy corta | Error |
+| U09 | Usuario sin email registrado | Email: carlos@correo.com, Contraseña: password123 | El correo no existe | Error |
+| U10 | Nombre de usuario invalido | Usuario: J@cob!, Email: jacob@correo.com, Contraseña: password123 | Nombre de usuario invalido | Error |
+| U11 | Registro de Email vacio | Email: "  ", Contraseña: password123 | InvalidEmailError | Error |
+| U12 | Contraseña de solo espacios | Correo: ana@correo.com, Contraseña: "  " | Contraseña invalida | Error |
+| U13 | Inicio de sesion con email vacio | Correo: "", Contraseña: password123 | Correo invalido | Error |
+| U14 | Email y contraseña incorrectos | Email: elena@correo.com, Contraseña: password123 | Correo y contraseña incorrectos | Error |
+| U15 | Registro con nombre de usuario vacio | Usuario: "", Email: usuario@correo.com, Contraseña: abcd123 | Usuario invalido | Error |
 
 ---
 

@@ -8,6 +8,11 @@ class Contacto:
         if not self.validate_email(email):
             raise InvalidEmailError("Formato de correo electrónico inválido.")
 
+    def __init__(self, nombre: str, email: str, telefono: int, categoria: str):
+        if not self.validate_phone(telefono):
+            raise ValueError("Número de teléfono inválido, debe tener al menos 10 dígitos.")
+        if not self.validate_email(email):
+            raise ValueError("Formato de correo electrónico inválido.")
         self.nombre = nombre
         self.telefono = telefono
         self.email = email
@@ -25,3 +30,13 @@ class Contacto:
         pattern = r"^(?!.*\.{2})[\w\.-]{1,64}@[a-zA-Z\d.-]{1,185}\.[a-zA-Z]{2,}$"
         return re.match(pattern, email) is not None
 
+
+    @staticmethod
+    def validate_phone(telefono: int) -> bool:
+        return len(str(telefono)) >= 10 and str(telefono).isdigit()
+
+    @staticmethod
+    def validate_email(email: str) -> bool:
+        import re
+        pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        return re.match(pattern, email) is not None

@@ -1,6 +1,6 @@
 class ContactError(Exception):
-    """Clase base para errores relacionados con contactos."""
-    pass
+    def __init__(self, mensaje):
+        super().__init__(mensaje)
 
 class InvalidPhoneNumberError(ContactError):
     def __init__(self, telefono):
@@ -10,36 +10,42 @@ class InvalidEmailError(ContactError):
     def __init__(self, email):
         super().__init__(f"Correo electrónico inválido: '{email}'. Verifica que tenga un formato correcto (ejemplo@dominio.com).")
 
-
-
 class InvalidEmailTooLong(Exception):
-    def __init__(self, email, maximo_caracteres=50):
-        super().__init__(f"Correo electronico invalido ¿: {email}. Es muy largo")
-    
-    def validar_email(email, maximo_caracteres=50):
-        if len(email)  > maximo_caracteres:
-            raise
-        InvalidEmailTooLong(email, maximo_caracteres)
-        return True
+    def __init__(self, email, maximo_caracteres=255):
+        super().__init__(f"Correo electrónico inválido: '{email}' supera el límite de {maximo_caracteres} caracteres.")
 
 class ContactNotFoundError(Exception):
     def __init__(self, nombre):
-        super().__init__(f"El contacto '{nombre}' no fue encontrado en la lista.")
+        super().__init__(f"El contacto con el nombre '{nombre}' no se encontró.")
 
-    def buscar_contacto(contactos, nombre):
-        if nombre not in contactos:
-            raise ContactNotFoundError(nombre)
-        return contactos[nombre]
-
-class DuplicateContactError(ContactError):
+class DuplicateContactError(Exception):
     def __init__(self, nombre):
-        super().__init__(f"El contacto '{nombre}' ya existe en la lista.")
+        super().__init__(f"El contacto con el nombre '{nombre}' ya existe.")
 
-class VCFExportError(ContactError):
-    def __init__(self, mensaje="Error al exportar contactos a archivo VCF. Verifique los datos y permisos del archivo."):
+class VCFExportError(Exception):
+    def __init__(self, mensaje):
         super().__init__(mensaje)
 
-class VCFImportError(ContactError):
-    def __init__(self, mensaje="Error al importar contactos desde archivo VCF. Verifique la estructura del archivo y los datos."):
+class VCFImportError(Exception):
+    def __init__(self, mensaje):
         super().__init__(mensaje)
+
+def exportar_a_vcf(self, archivo):
+    if not self.contactos:
+        raise VCFExportError("No hay contactos para exportar.")
+
+def importar_desde_vcf(self, archivo):
+    if not os.path.exists(archivo):
+        raise VCFImportError("El archivo no existe.")
+
+class InvalidNameError(ValueError):
+    pass
+
+class InvalidEmailError(ValueError):
+    pass
+
+class InvalidPasswordError(ValueError):
+    pass
+
+
 

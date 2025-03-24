@@ -1,42 +1,33 @@
 import re
-from src.model.excepciones import (InvalidEmailError, InvalidPhoneNumberError)
+from src.model.excepciones import (InvalidEmailError, InvalidPhoneNumberError, InvalidEmailTooLong, ContactError)
 
 class Contacto:
     def __init__(self, nombre: str, telefono: str, email: str, categoria: str = "Sin categoría"):
-        if not self.validate_phone(telefono):
+        if not nombre.strip():
+            raise ContactError("El nombre no puede estar vacío o compuesto solo por espacios.")
+        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", nombre):
+            raise ContactError("El nombre contiene caracteres no permitidos.")
+        if not self.validar_numero(telefono):
             raise InvalidPhoneNumberError("Número de teléfono inválido, debe tener al menos 10 dígitos.")
-        if not self.validate_email(email):
+        if not self.validar_email(email):
             raise InvalidEmailError("Formato de correo electrónico inválido.")
-
-    def __init__(self, nombre: str, email: str, telefono: int, categoria: str):
-        if not self.validate_phone(telefono):
-            raise ValueError("Número de teléfono inválido, debe tener al menos 10 dígitos.")
-        if not self.validate_email(email):
-            raise ValueError("Formato de correo electrónico inválido.")
-        self.nombre = nombre
+        self.nombre = nombre.strip()
         self.telefono = telefono
         self.email = email
-        self.categoria = categoria if categoria else "Sin categoría"
+        self.categoria = categoria.strip() if categoria.strip() else "Sin categoría"
+
 
     def __str__(self):
         return f"{self.nombre} ({self.categoria}): {self.email}, {self.telefono}"
 
     @staticmethod
     def validar_numero(telefono: str) -> bool:
-        return isinstance(telefono, str) and telefono.isdigit() and len(telefono) == 10
+        return telefono.isdigit() and len(telefono) == 10
 
     @staticmethod
-    def validar_email(email: str) -> bool:
-        pattern = r"^(?!.*\.{2})[\w\.-]{1,64}@[a-zA-Z\d.-]{1,185}\.[a-zA-Z]{2,}$"
+    def validar_email(email: str, maximo_caracteres: int = 255) -> bool:
+        if len(email) > maximo_caracteres:
+            raise InvalidEmailTooLong(email, maximo_caracteres)
+        pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$"
         return re.match(pattern, email) is not None
 
-
-    @staticmethod
-    def validate_phone(telefono: int) -> bool:
-        return len(str(telefono)) >= 10 and str(telefono).isdigit()
-
-    @staticmethod
-    def validate_email(email: str) -> bool:
-        import re
-        pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-        return re.match(pattern, email) is not None

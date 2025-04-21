@@ -1,172 +1,205 @@
 <LoginScreen>:
-    BoxLayout:
-        orientation: 'vertical'
-        padding: 20
-        spacing: 10
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgb: 0.1, 0.1, 0.4  # Fondo azul oscuro
+            Rectangle:
+                size: self.size
+                pos: self.pos
 
-        Label:
-            text: 'Inicio de Sesión'
-            font_size: 24
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 0.8, 0.8
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}  # Centra el contenido
 
-        TextInput:
-            id: email_input
-            hint_text: 'Correo electrónico'
-            multiline: False
+            Label:
+                text: 'Inicio de Sesión'
+                font_size: 24
 
-        TextInput:
-            id: password_input
-            hint_text: 'Contraseña'
-            password: True
-            multiline: False
+            TextInput:
+                id: email_input
+                hint_text: 'Correo electrónico'
+                multiline: False
 
-        Button:
-            text: 'Iniciar Sesión'
-            on_press: root.iniciar_sesion()
+            TextInput:
+                id: password_input
+                hint_text: 'Contraseña'
+                password: True
+                multiline: False
 
-        Label:
-            id: message_label
-            text: ''
-            color: 1, 0, 0, 1
+            Button:
+                text: 'Iniciar Sesión'
+                size_hint: 0.5, None  # Botón más pequeño
+                height: 40
+                on_press: root.iniciar_sesion()
 
-        Button:
-            text: 'Registrarse'
-            on_press: app.root.current = 'register'
+            Label:
+                id: message_label
+                text: ''
+                color: 1, 0, 0, 1  # Mensajes en rojo
+
+            Button:
+                text: 'Registrarse'
+                size_hint: 0.5, None
+                height: 40
+                on_press: app.root.current = 'register'
+
 
 <RegisterScreen>:
-    BoxLayout:
-        orientation: 'vertical'
-        padding: 20
-        spacing: 10
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgb: 0.1, 0.1, 0.4  # Fondo azul oscuro
+            Rectangle:
+                size: self.size
+                pos: self.pos
 
-        Label:
-            text: 'Registro de Usuario'
-            font_size: 24
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 0.8, 0.8
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}  # Centra el contenido
 
-        TextInput:
-            id: nombre_input
-            hint_text: 'Nombre completo'
-            multiline: False
+            Label:
+                text: 'Registro de Usuario'
+                font_size: 24
 
-        TextInput:
-            id: email_input
-            hint_text: 'Correo electrónico'
-            multiline: False
+            TextInput:
+                id: nombre_input
+                hint_text: 'Nombre completo'
+                multiline: False
 
-        TextInput:
-            id: password_input
-            hint_text: 'Contraseña'
-            password: True
-            multiline: False
+            TextInput:
+                id: email_input
+                hint_text: 'Correo electrónico'
+                multiline: False
 
-        Button:
-            text: 'Registrar'
-            on_press: root.registrar_usuario()
+            TextInput:
+                id: password_input
+                hint_text: 'Contraseña'
+                password: True
+                multiline: False
 
-        Label:
-            id: message_label
-            text: ''
-            color: 1, 0, 0, 1
+            Button:
+                text: 'Registrar'
+                size_hint: 0.5, None
+                height: 40
+                on_press: root.registrar_usuario()
 
-        Button:
-            text: 'Volver a Inicio de Sesión'
-            on_press: app.root.current = 'login'
+            Label:
+                id: message_label
+                text: ''
+                color: 1, 0, 0, 1
+
+            Button:
+                text: 'Volver a Inicio de Sesión'
+                size_hint: 0.5, None
+                height: 40
+                on_press: app.root.current = 'login'
+
 
 <MenuScreen>:
-    BoxLayout:
-        orientation: 'vertical'
-        padding: 20
-        spacing: 10
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgb: 0.1, 0.1, 0.4  # Fondo azul oscuro
+            Rectangle:
+                size: self.size
+                pos: self.pos
 
-        Label:
-            id: welcome_label
-            text: 'Bienvenido al Gestor de Contactos'
-            font_size: 24
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 0.8, 0.8
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}  # Centra el contenido
 
-        Button:
-            text: 'Cerrar Sesión'
-            on_press: app.root.current = 'login'
+            Label:
+                id: contactos_label
+                text: 'Gestor de Contactos'
+                font_size: 18
+                color: 1, 1, 1, 1  # Texto blanco
+
+            Button:
+                text: 'Cerrar Sesión'
+                size_hint: 0.5, None
+                height: 40
+                on_press: app.root.current = 'login'
+
+            TextInput:
+                id: nombre_input
+                hint_text: 'Nombre del contacto'
+                multiline: False
+
+            TextInput:
+                id: telefono_input
+                hint_text: 'Teléfono'
+                multiline: False
+
+            TextInput:
+                id: email_input
+                hint_text: 'Email'
+                multiline: False
+
+            TextInput:
+                id: categoria_input
+                hint_text: 'Categoría (opcional)'
+                multiline: False
+
+            Button:
+                text: 'Agregar Contacto'
+                size_hint: 0.5, None  # Hace que el botón ocupe la mitad del ancho del contenedor
+                height: 40  # Fija la altura del botón
+                pos_hint: {"center_x": 0.5}  # Centra el botón horizontalmente
+                color: 1, 1, 1, 1  # Texto blanco
+                on_press: root.agregar_contacto()
 
 
-        TextInput:
-            id: buscar_nombre_input
-            hint_text: 'Buscar contacto por nombre'
-            multiline: False
+            TextInput:
+                id: buscar_nombre_input
+                hint_text: 'Buscar contacto por nombre'
+                multiline: False
 
-        Button:
-            text: 'Buscar Contacto'
-            on_press: root.buscar_contacto()
+            Button:
+                text: 'Buscar Contacto'
+                size_hint: 0.5, None
+                height: 40
+                pos_hint: {"center_x": 0.5}
+                color: 1, 1, 1, 1
+                on_press: root.buscar_contacto()
 
-        TextInput:
-            id: eliminar_email_input
-            hint_text: 'Eliminar contacto por email'
-            multiline: False
+            TextInput:
+                id: eliminar_email_input
+                hint_text: 'Eliminar contacto por email'
+                multiline: False
 
-        Button:
-            text: 'Eliminar Contacto'
-            on_press: root.eliminar_contacto()
+            Button:
+                text: 'Eliminar Contacto'
+                size_hint: 0.5, None
+                height: 40
+                on_press: root.eliminar_contacto()
 
-        Label:
-            id: contactos_label
-            text: ''
-            font_size: 16
-            color: 0, 0, 0, 1
+            TextInput:
+                id: exportar_archivo_input
+                hint_text: 'Nombre del archivo para exportar'
+                multiline: False
 
-        TextInput:
-            id: nombre_input
-            hint_text: 'Nombre del contacto'
-            multiline: False
+            Button:
+                text: 'Exportar Contactos'
+                size_hint: 0.5, None
+                height: 40
+                on_press: root.exportar_contactos()
 
-        TextInput:
-            id: telefono_input
-            hint_text: 'Teléfono'
-            multiline: False
+            TextInput:
+                id: importar_archivo_input
+                hint_text: 'Nombre del archivo para importar'
+                multiline: False
 
-        TextInput:
-            id: email_input
-            hint_text: 'Email'
-            multiline: False
+            Button:
+                text: 'Importar Contactos'
+                size_hint: 0.5, None
+                height: 40
+                on_press: root.importar_contactos()
 
-        TextInput:
-            id: categoria_input
-            hint_text: 'Categoría (opcional)'
-            multiline: False
-
-        Button:
-            text: 'Agregar Contacto'
-            on_press: root.agregar_contacto()
-
-        Label:
-            text: 'Exportar Contactos a VCF'
-            font_size: 20
-
-        TextInput:
-            id: exportar_archivo_input
-            hint_text: 'Nombre del archivo para exportar'
-            multiline: False
-
-        Button:
-            text: 'Exportar'
-            on_press: root.exportar_contactos()
-
-        Label:
-            text: 'Importar Contactos desde VCF'
-            font_size: 20
-
-        TextInput:
-            id: importar_archivo_input
-            hint_text: 'Nombre del archivo para importar'
-            multiline: False
-
-        Button:
-            text: 'Importar'
-            on_press: root.importar_contactos()
-
-        Label:
-            id: importar_message_label
-            text: ''
-            font_size: 16
-            color: 0, 0.5, 0, 1
-
-        Button:
-            text: 'Cerrar Sesión'
-            on_press: root.cerrar_sesion()
+            Label:
+                id: contactos_label
+                text: ''
+                font_size: 16
+                color: 0, 0, 0, 1

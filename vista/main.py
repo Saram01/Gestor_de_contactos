@@ -4,51 +4,70 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.screenmanager import Screen
 from src.model.gestor_usuarios import GestorDeUsuarios
 from src.model.contactos import Contacto
+from src.model.excepciones import (
+                                    InvalidNameError,
+                                    InvalidEmailError,
+                                    InvalidPasswordError,)
 
 gestor_usuarios = GestorDeUsuarios()
 
 class LoginScreen(Screen):
     def iniciar_sesion(self):
-        email = self.ids.email_input.text.strip()
-        password = self.ids.password_input.text.strip()
-        
-        if not email or not password:
-            self.ids.message_label.text = "Por favor, completa todos los campos."
-            return
+        try:
+            email = self.ids.email_input.text.strip()
+            password = self.ids.password_input.text.strip()
+            print(f"Email: {email}, Password: {password}")
 
-        # Validar las credenciales con `gestor_usuarios`.
-        usuario = gestor_usuarios.validar_credenciales(email, password)
-        if usuario:
-            self.manager.current = 'menu'
-            self.manager.get_screen('menu').ids.welcome_label.text = f"Bienvenido, {usuario.nombre}!"
-        else:
-            self.ids.message_label.text = "Error: Credenciales inválidas."
+            if not email or not password:
+                self.ids.message_label.text = "Por favor, completa todos los campos."
+                return
+
+            usuario = gestor_usuarios.validar_credenciales(email, password)
+            if usuario:
+                print(f"Usuario encontrado: {usuario.nombre}")
+                self.manager.current = 'menu'
+                print("Cambiando a pantalla 'menu'")
+                self.manager.get_screen('menu').ids.welcome_label.text = f"Bienvenido, {usuario.nombre}!"
+            else:
+                self.ids.message_label.text = "Error: Credenciales inválidas."
+        except AttributeError as e:
+            print(f"Atributo no encontrado: {e}")
+        except Exception as e:
+            print(f"Error inesperado: {e}")
+
 
 
 
 class RegisterScreen(Screen):
     def registrar_usuario(self):
-        nombre = self.ids.nombre_input.text.strip()
-        email = self.ids.email_input.text.strip()
-        password = self.ids.password_input.text.strip()
+        try:
+            nombre = self.ids.nombre_input.text.strip()
+            email = self.ids.email_input.text.strip()
+            password = self.ids.password_input.text.strip()
 
-        if not nombre:
-            self.ids.message_label.text = "El nombre no puede estar vacío."
-            return
-        if not email:
-            self.ids.message_label.text = "El correo no puede estar vacío."
-            return
-        if not password:
-            self.ids.message_label.text = "La contraseña no puede estar vacía."
-            return
+            if not nombre:
+                self.ids.message_label.text = "El nombre no puede estar vacío."
+                return
+            if not email:
+                self.ids.message_label.text = "El correo no puede estar vacío."
+                return
+            if not password:
+                self.ids.message_label.text = "La contraseña no puede estar vacía."
+                return
 
-        # Registrar usuario.
-        mensaje = gestor_usuarios.registrar_usuario(nombre, email, password)
-        if "Usuario registrado exitosamente" in mensaje:
-            self.ids.message_label.text = "¡Usuario registrado exitosamente! Por favor, inicia sesión."
-            self.manager.current = 'login'
-        else:
-            self.ids.message_label.text = mensaje
+            # Intentar registrar al usuario.
+            mensaje = gestor_usuarios.registrar_usuario(nombre, email, password)
+            if "Usuario registrado exitosamente" in mensaje:
+                self.ids.message_label.text = "¡Usuario registrado exitosamente! Por favor, inicia sesión."
+                self.manager.current = 'login'
+            else:
+                self.ids.message_label.text = mensaje
+        except InvalidEmailError as e:
+            self.ids.message_label.text = str(e)  # Mostrar el error al usuario
+        except Exception as e:
+            self.ids.message_label.text = "Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo."
+            print(f"Error inesperado: {e}")  # Imprime el error en la consola para depuración
+
 
 
 class MenuScreen(Screen):
@@ -189,6 +208,7 @@ class MainApp(App):
         sm.add_widget(RegisterScreen(name='register'))
         sm.add_widget(MenuScreen(name='menu'))
         return sm
+
     
 
 if __name__ == '__main__':

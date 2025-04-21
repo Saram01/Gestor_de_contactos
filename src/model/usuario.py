@@ -44,6 +44,8 @@ class Usuario:
         if any(c.email == contacto.email for c in self.contactos):
             raise ValueError(f"El contacto con el correo {contacto.email} ya existe.")
         self.contactos.append(contacto)
+        print(f"Contacto añadido: {contacto.nombre}, Total contactos: {len(self.contactos)}")
+
 
     def iniciar_sesion(self, email: str, contraseña: str) -> bool:
         if self.email.lower() == email.lower() and self.verificar_contraseña(contraseña):

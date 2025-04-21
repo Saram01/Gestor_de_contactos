@@ -1,0 +1,172 @@
+<LoginScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+
+        Label:
+            text: 'Inicio de Sesión'
+            font_size: 24
+
+        TextInput:
+            id: email_input
+            hint_text: 'Correo electrónico'
+            multiline: False
+
+        TextInput:
+            id: password_input
+            hint_text: 'Contraseña'
+            password: True
+            multiline: False
+
+        Button:
+            text: 'Iniciar Sesión'
+            on_press: root.iniciar_sesion()
+
+        Label:
+            id: message_label
+            text: ''
+            color: 1, 0, 0, 1
+
+        Button:
+            text: 'Registrarse'
+            on_press: app.root.current = 'register'
+
+<RegisterScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+
+        Label:
+            text: 'Registro de Usuario'
+            font_size: 24
+
+        TextInput:
+            id: nombre_input
+            hint_text: 'Nombre completo'
+            multiline: False
+
+        TextInput:
+            id: email_input
+            hint_text: 'Correo electrónico'
+            multiline: False
+
+        TextInput:
+            id: password_input
+            hint_text: 'Contraseña'
+            password: True
+            multiline: False
+
+        Button:
+            text: 'Registrar'
+            on_press: root.registrar_usuario()
+
+        Label:
+            id: message_label
+            text: ''
+            color: 1, 0, 0, 1
+
+        Button:
+            text: 'Volver a Inicio de Sesión'
+            on_press: app.root.current = 'login'
+
+<MenuScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+
+        Label:
+            id: welcome_label
+            text: 'Bienvenido al Gestor de Contactos'
+            font_size: 24
+
+        Button:
+            text: 'Cerrar Sesión'
+            on_press: app.root.current = 'login'
+
+
+        TextInput:
+            id: buscar_nombre_input
+            hint_text: 'Buscar contacto por nombre'
+            multiline: False
+
+        Button:
+            text: 'Buscar Contacto'
+            on_press: root.buscar_contacto()
+
+        TextInput:
+            id: eliminar_email_input
+            hint_text: 'Eliminar contacto por email'
+            multiline: False
+
+        Button:
+            text: 'Eliminar Contacto'
+            on_press: root.eliminar_contacto()
+
+        Label:
+            id: contactos_label
+            text: ''
+            font_size: 16
+            color: 0, 0, 0, 1
+
+        TextInput:
+            id: nombre_input
+            hint_text: 'Nombre del contacto'
+            multiline: False
+
+        TextInput:
+            id: telefono_input
+            hint_text: 'Teléfono'
+            multiline: False
+
+        TextInput:
+            id: email_input
+            hint_text: 'Email'
+            multiline: False
+
+        TextInput:
+            id: categoria_input
+            hint_text: 'Categoría (opcional)'
+            multiline: False
+
+        Button:
+            text: 'Agregar Contacto'
+            on_press: root.agregar_contacto()
+
+        Label:
+            text: 'Exportar Contactos a VCF'
+            font_size: 20
+
+        TextInput:
+            id: exportar_archivo_input
+            hint_text: 'Nombre del archivo para exportar'
+            multiline: False
+
+        Button:
+            text: 'Exportar'
+            on_press: root.exportar_contactos()
+
+        Label:
+            text: 'Importar Contactos desde VCF'
+            font_size: 20
+
+        TextInput:
+            id: importar_archivo_input
+            hint_text: 'Nombre del archivo para importar'
+            multiline: False
+
+        Button:
+            text: 'Importar'
+            on_press: root.importar_contactos()
+
+        Label:
+            id: importar_message_label
+            text: ''
+            font_size: 16
+            color: 0, 0.5, 0, 1
+
+        Button:
+            text: 'Cerrar Sesión'
+            on_press: root.cerrar_sesion()

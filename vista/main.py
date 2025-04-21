@@ -172,32 +172,35 @@ class MenuScreen(Screen):
     def exportar_contactos(self):
         archivo = self.ids.exportar_archivo_input.text.strip()
         if not archivo:
-            self.ids.exportar_message_label.text = "Por favor, introduce un nombre de archivo para exportar."
+            self.ids.contactos_label.text = "Por favor, introduce un nombre de archivo para exportar."
             return
 
         try:
-            usuario_actual = gestor_usuarios.usuarios[-1]
-            usuario_actual.gestor_contactos.exportar_a_vcf(archivo)
-            self.ids.exportar_message_label.text = f"Contactos exportados exitosamente a '{archivo}'."
+            usuario_actual = gestor_usuarios.usuarios[-1]  # Último usuario registrado
+            usuario_actual.exportar_a_vcf(archivo)
+            self.ids.contactos_label.text = f"Contactos exportados exitosamente a '{archivo}'."
         except IndexError:
-            self.ids.exportar_message_label.text = "No hay usuarios registrados."
+            self.ids.contactos_label.text = "No hay usuarios registrados."
         except Exception as e:
-            self.ids.exportar_message_label.text = str(e)
+            self.ids.contactos_label.text = f"Error al exportar contactos: {str(e)}"
+
 
     def importar_contactos(self):
         archivo = self.ids.importar_archivo_input.text.strip()
         if not archivo:
-            self.ids.importar_message_label.text = "Por favor, introduce un nombre de archivo para importar."
+            self.ids.contactos_label.text = "Por favor, introduce un nombre de archivo para importar."
             return
 
         try:
-            usuario_actual = gestor_usuarios.usuarios[-1]
-            usuario_actual.gestor_contactos.importar_desde_vcf(archivo)
-            self.ids.importar_message_label.text = "Contactos importados exitosamente."
+            usuario_actual = gestor_usuarios.usuarios[-1]  # Último usuario registrado
+            usuario_actual.importar_desde_vcf(archivo)
+            self.ids.contactos_label.text = "Contactos importados exitosamente."
+            self.listar_contactos()  # Refrescar la lista en la interfaz
         except IndexError:
-            self.ids.importar_message_label.text = "No hay usuarios registrados."
+            self.ids.contactos_label.text = "No hay usuarios registrados."
         except Exception as e:
-            self.ids.importar_message_label.text = str(e)
+            self.ids.contactos_label.text = f"Error al importar contactos: {str(e)}"
+
 
 
 

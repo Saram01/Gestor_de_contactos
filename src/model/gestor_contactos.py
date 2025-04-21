@@ -50,24 +50,49 @@ class GestorDeContactos:
     def filtrar_contacto(self, categoria: str):
         return [c for c in self.contactos if c.categoria.lower() == categoria.lower()]
     
-    def exportar_a_vcf(self, archivo):
-        if not self.contactos:
-            raise VCFExportError("No hay contactos para exportar.")
+    def exportar_a_vcf(self, archivo: str):
         try:
-            with open(archivo, "w") as f:
+            with open(archivo, 'w', encoding='utf-8') as f:
                 for contacto in self.contactos:
-                    f.write(f"BEGIN:VCARD\nVERSION:3.0\n")
+                    f.write(f"BEGIN:VCARD\n")
+                    f.write(f"VERSION:3.0\n")
                     f.write(f"N:{contacto.nombre}\n")
                     f.write(f"TEL:{contacto.telefono}\n")
                     f.write(f"EMAIL:{contacto.email}\n")
-                    f.write(f"CATEGORY:{contacto.categoria}\n")
-                    f.write("END:VCARD\n")
-        except FileNotFoundError:
-            raise VCFExportError(f"No se pudo escribir en el archivo {archivo}.")
+                    if contacto.categoria:
+                        f.write(f"CATEGORY:{contacto.categoria}\n")
+                    f.write(f"END:VCARD\n")
+            print(f"Contactos exportados exitosamente a {archivo}")
+        except Exception as e:
+            print
 
-    def importar_desde_vcf(self, archivo):
-        if not os.path.exists(archivo):
-            raise VCFImportError(f"El archivo {archivo} no existe.")
+    def importar_desde_vcf(self, archivo: str):
+        try:
+            with open(archivo, 'r', encoding='utf-8') as f:
+                contacto = {}
+                for linea in f:
+                    linea = linea.strip()
+                    if linea.startswith("BEGIN:VCARD"):
+                        contacto = {}
+                    elif linea.startswith("N:"):
+                        contacto["nombre"] = linea.split(":")[1]
+                    elif linea.startswith("TEL:"):
+                        contacto["telefono"] = linea.split(":")[1]
+                    elif linea.startswith("EMAIL:"):
+                        contacto["email"] = linea.split(":")[1]
+                    elif linea.startswith("CATEGORY:"):
+                        contacto["categoria"] = linea.split(":")[1]
+                    elif linea.startswith("END:VCARD"):
+                        nuevo_contacto = Contacto(
+                            nombre=contacto.get("nombre"),
+                            telefono=contacto.get("telefono"),
+                            email=contacto.get("email"),
+                            categoria=contacto.get("categoria"),
+                        )
+                        self.contactos.append(nuevo_contacto)
+            print("Contactos importados exitosamente.")
+        except Exception as e:
+            print(f"Error al importar contactos: {e}")
 
 
 

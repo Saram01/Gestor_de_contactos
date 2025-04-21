@@ -32,6 +32,7 @@
                 size_hint: 0.5, None  # Botón más pequeño
                 height: 40
                 on_press: root.iniciar_sesion()
+                pos_hint: {"center_x": 0.5}
 
             Label:
                 id: message_label
@@ -43,6 +44,7 @@
                 size_hint: 0.5, None
                 height: 40
                 on_press: app.root.current = 'register'
+                pos_hint: {"center_x": 0.5}
 
 
 <RegisterScreen>:
@@ -57,7 +59,7 @@
         BoxLayout:
             orientation: 'vertical'
             size_hint: 0.8, 0.8
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}  # Centra el contenido
+            pos_hint: {"center_x": 0.5} # Centra el contenido
 
             Label:
                 text: 'Registro de Usuario'
@@ -84,6 +86,7 @@
                 size_hint: 0.5, None
                 height: 40
                 on_press: root.registrar_usuario()
+                pos_hint: {"center_x": 0.5}
 
             Label:
                 id: message_label
@@ -95,6 +98,7 @@
                 size_hint: 0.5, None
                 height: 40
                 on_press: app.root.current = 'login'
+                pos_hint: {"center_x": 0.5}
 
 
 <MenuScreen>:
@@ -109,7 +113,7 @@
         BoxLayout:
             orientation: 'vertical'
             size_hint: 0.8, 0.8
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}  # Centra el contenido
+            pos_hint: {"center_x": 0.5}
 
             Label:
                 id: contactos_label
@@ -122,6 +126,7 @@
                 size_hint: 0.5, None
                 height: 40
                 on_press: app.root.current = 'login'
+                pos_hint: {"center_x": 0.5}
 
             TextInput:
                 id: nombre_input
@@ -174,6 +179,7 @@
                 text: 'Eliminar Contacto'
                 size_hint: 0.5, None
                 height: 40
+                pos_hint: {"center_x": 0.5}
                 on_press: root.eliminar_contacto()
 
             TextInput:
@@ -185,6 +191,7 @@
                 text: 'Exportar Contactos'
                 size_hint: 0.5, None
                 height: 40
+                pos_hint: {"center_x": 0.5}
                 on_press: root.exportar_contactos()
 
             TextInput:
@@ -196,6 +203,7 @@
                 text: 'Importar Contactos'
                 size_hint: 0.5, None
                 height: 40
+                pos_hint: {"center_x": 0.5}
                 on_press: root.importar_contactos()
 
             Label:

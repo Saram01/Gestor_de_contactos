@@ -30,25 +30,17 @@ class Usuario:
         self.contactos = [] 
 
 
-    @staticmethod
-    def validar_email(email: str) -> bool:
-        import re
-        pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-        return re.match(pattern, email) is not None
+    
+
 
     @staticmethod
-    def validar_nombre(nombre: str) -> bool:
-        import re
-        pattern = r"^[A-Za-z\s]+$"  
-        return bool(re.match(pattern, nombre.strip()))
-
-    @staticmethod
-    def encriptar_contraseña(contraseña: str) -> str:
+    def encriptar_contraseña(contraseña: str) -> bytes:
         salt = bcrypt.gensalt()
-        return bcrypt.hashpw(contraseña.encode(), salt).decode()
+        return bcrypt.hashpw(contraseña.encode(), salt)
 
     def verificar_contraseña(self, contraseña: str) -> bool:
-        return bcrypt.checkpw(contraseña.encode(), self.contraseña.encode())
+        return bcrypt.checkpw(contraseña.encode(), self.contraseña)
+
 
     def iniciar_sesion(self, email: str, contraseña: str) -> bool:
         if self.email.lower() == email.lower() and self.verificar_contraseña(contraseña):
@@ -63,4 +55,15 @@ class Usuario:
     @property
     def obtener_contactos(self):
         return self.contactos
+    
+    @staticmethod
+    def validar_email(email: str) -> bool:
+        import re
+        pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+        return re.match(pattern, email) is not None
 
+    @staticmethod
+    def validar_nombre(nombre: str) -> bool:
+        import re
+        pattern = r"^[A-Za-z\s]+$"  
+        return bool(re.match(pattern, nombre.strip()))

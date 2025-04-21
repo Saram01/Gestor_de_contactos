@@ -1,3 +1,4 @@
+import bcrypt
 from src.model.usuario import Usuario
 
 class GestorDeUsuarios:
@@ -16,6 +17,9 @@ class GestorDeUsuarios:
     def validar_credenciales(self, email, password):
         for usuario in self.usuarios:
             if usuario.email == email and bcrypt.checkpw(password.encode(), usuario.password):
-                return usuario  # Devuelve la instancia de Usuario
+                return usuario
         return None
+
+    
+
 

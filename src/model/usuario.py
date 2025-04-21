@@ -1,6 +1,6 @@
 import re
 import bcrypt
-from src.model.contactos import Contacto 
+from src.model.contactos import Contacto
 from src.model.excepciones import (
     InvalidNameError,
     InvalidEmailError,
@@ -26,11 +26,8 @@ class Usuario:
 
         self.nombre = nombre.strip()
         self.email = email.strip()
-        self.contraseña = self.encriptar_contraseña(password)
-        self.contactos = [] 
-
-
-    
+        self.password = self.encriptar_contraseña(password)  # Cambié `contraseña` a `password`
+        self.contactos = []
 
 
     @staticmethod
@@ -38,9 +35,15 @@ class Usuario:
         salt = bcrypt.gensalt()
         return bcrypt.hashpw(contraseña.encode(), salt)
 
+
+
     def verificar_contraseña(self, contraseña: str) -> bool:
         return bcrypt.checkpw(contraseña.encode(), self.contraseña)
 
+    def agregar_contacto(self, contacto: Contacto):
+        if any(c.email == contacto.email for c in self.contactos):
+            raise ValueError(f"El contacto con el correo {contacto.email} ya existe.")
+        self.contactos.append(contacto)
 
     def iniciar_sesion(self, email: str, contraseña: str) -> bool:
         if self.email.lower() == email.lower() and self.verificar_contraseña(contraseña):

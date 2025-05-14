@@ -5,14 +5,24 @@ from kivy.uix.screenmanager import Screen
 from src.model.gestor_usuarios import GestorDeUsuarios
 from src.model.contactos import Contacto
 from src.model.excepciones import (
-                                    InvalidNameError,
-                                    InvalidEmailError,
-                                    InvalidPasswordError,)
+    InvalidNameError,
+    InvalidEmailError,
+    InvalidPasswordError,
+)
 
 gestor_usuarios = GestorDeUsuarios()
 
+
 class LoginScreen(Screen):
+    """
+    Pantalla de inicio de sesión del usuario.
+    """
+
     def iniciar_sesion(self):
+        """
+        Maneja el proceso de inicio de sesión del usuario.
+        Valida los campos, verifica credenciales y navega al menú principal si son correctas.
+        """
         try:
             email = self.ids.email_input.text.strip()
             password = self.ids.password_input.text.strip()
@@ -36,10 +46,16 @@ class LoginScreen(Screen):
             print(f"Error inesperado: {e}")
 
 
-
-
 class RegisterScreen(Screen):
+    """
+    Pantalla de registro de nuevos usuarios.
+    """
+
     def registrar_usuario(self):
+        """
+        Registra un nuevo usuario en el sistema tras validar los campos.
+        Muestra mensajes de error si los datos no son válidos.
+        """
         try:
             nombre = self.ids.nombre_input.text.strip()
             email = self.ids.email_input.text.strip()
@@ -55,7 +71,6 @@ class RegisterScreen(Screen):
                 self.ids.message_label.text = "La contraseña no puede estar vacía."
                 return
 
-            # Intentar registrar al usuario.
             mensaje = gestor_usuarios.registrar_usuario(nombre, email, password)
             if "Usuario registrado exitosamente" in mensaje:
                 self.ids.message_label.text = "¡Usuario registrado exitosamente! Por favor, inicia sesión."
@@ -63,23 +78,28 @@ class RegisterScreen(Screen):
             else:
                 self.ids.message_label.text = mensaje
         except InvalidEmailError as e:
-            self.ids.message_label.text = str(e)  # Mostrar el error al usuario
+            self.ids.message_label.text = str(e)
         except Exception as e:
             self.ids.message_label.text = "Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo."
-            print(f"Error inesperado: {e}")  # Imprime el error en la consola para depuración
-
+            print(f"Error inesperado: {e}")
 
 
 class MenuScreen(Screen):
+    """
+    Pantalla principal del sistema después de iniciar sesión.
+    Permite al usuario buscar, agregar, editar, eliminar, importar y exportar contactos.
+    """
+
     def buscar_contacto(self):
-        # Obtener el nombre del campo de entrada
+        """
+        Busca un contacto por nombre en la lista del usuario actual.
+        """
         nombre = self.ids.buscar_nombre_input.text.strip()
         
         if not nombre:
             self.ids.contactos_label.text = "Por favor, introduce un nombre para buscar."
             return
 
-        # Buscar en la lista de contactos del último usuario registrado
         try:
             usuario_actual = gestor_usuarios.usuarios[-1]
             resultados = [contacto for contacto in usuario_actual.obtener_contactos if contacto.nombre.lower() == nombre.lower()]
@@ -92,7 +112,10 @@ class MenuScreen(Screen):
             self.ids.contactos_label.text = "No hay usuarios registrados aún."
 
     def agregar_contacto(self):
-        # Recuperar los datos del formulario
+        """
+        Agrega un nuevo contacto al usuario actual.
+        Valida los campos requeridos y muestra errores si es necesario.
+        """
         nombre = self.ids.nombre_input.text.strip()
         telefono = self.ids.telefono_input.text.strip()
         email = self.ids.email_input.text.strip()
@@ -113,7 +136,9 @@ class MenuScreen(Screen):
             self.ids.contactos_label.text = str(e)
 
     def listar_contactos(self):
-        # Listar todos los contactos del usuario actual
+        """
+        Muestra todos los contactos del usuario actual.
+        """
         try:
             usuario_actual = gestor_usuarios.usuarios[-1]
             contactos = usuario_actual.obtener_contactos
@@ -125,6 +150,9 @@ class MenuScreen(Screen):
             self.ids.contactos_label.text = "No hay usuarios registrados."
 
     def eliminar_contacto(self):
+        """
+        Elimina un contacto del usuario actual por su correo electrónico.
+        """
         email = self.ids.eliminar_email_input.text.strip()
         if not email:
             self.ids.contactos_label.text = "Por favor, introduce un email para eliminar."
@@ -140,6 +168,9 @@ class MenuScreen(Screen):
             self.ids.contactos_label.text = str(e)
 
     def editar_contacto(self):
+        """
+        Edita la información de un contacto existente, si se encuentra por nombre.
+        """
         try:
             nombre_actual = self.ids.editar_nombre_actual_input.text.strip()
             nombre_nuevo = self.ids.editar_nombre_nuevo_input.text.strip()
@@ -170,13 +201,16 @@ class MenuScreen(Screen):
             self.ids.editar_message_label.text = str(e)
 
     def exportar_contactos(self):
+        """
+        Exporta la lista de contactos del usuario actual a un archivo VCF.
+        """
         archivo = self.ids.exportar_archivo_input.text.strip()
         if not archivo:
             self.ids.contactos_label.text = "Por favor, introduce un nombre de archivo para exportar."
             return
 
         try:
-            usuario_actual = gestor_usuarios.usuarios[-1]  # Último usuario registrado
+            usuario_actual = gestor_usuarios.usuarios[-1]
             usuario_actual.exportar_a_vcf(archivo)
             self.ids.contactos_label.text = f"Contactos exportados exitosamente a '{archivo}'."
         except IndexError:
@@ -184,39 +218,47 @@ class MenuScreen(Screen):
         except Exception as e:
             self.ids.contactos_label.text = f"Error al exportar contactos: {str(e)}"
 
-
     def importar_contactos(self):
+        """
+        Importa contactos desde un archivo VCF y los agrega al usuario actual.
+        """
         archivo = self.ids.importar_archivo_input.text.strip()
         if not archivo:
             self.ids.contactos_label.text = "Por favor, introduce un nombre de archivo para importar."
             return
 
         try:
-            usuario_actual = gestor_usuarios.usuarios[-1]  # Último usuario registrado
+            usuario_actual = gestor_usuarios.usuarios[-1]
             usuario_actual.importar_desde_vcf(archivo)
             self.ids.contactos_label.text = "Contactos importados exitosamente."
-            self.listar_contactos()  # Refrescar la lista en la interfaz
+            self.listar_contactos()
         except IndexError:
             self.ids.contactos_label.text = "No hay usuarios registrados."
         except Exception as e:
             self.ids.contactos_label.text = f"Error al importar contactos: {str(e)}"
 
 
-
-
 class MainApp(App):
+    """
+    Clase principal de la aplicación, configura y lanza la interfaz con Kivy.
+    """
+
     def build(self):
+        """
+        Crea y configura el gestor de pantallas.
+        
+        Returns:
+            ScreenManager: Administrador de pantallas de la app.
+        """
         sm = ScreenManager()
         sm.add_widget(LoginScreen(name='login'))
         sm.add_widget(RegisterScreen(name='register'))
         sm.add_widget(MenuScreen(name='menu'))
         return sm
 
-    
 
 if __name__ == '__main__':
     try:
         MainApp().run()
     except Exception as e:
         print(f"Se ha producido un error inesperado: {e}")
-

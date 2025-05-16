@@ -1,5 +1,9 @@
-import re
+from sqlalchemy import Column, Integer, String
+from src.model.db import SessionLocal
+
+session = SessionLocal()
 import bcrypt
+import re
 from src.model.contactos import Contacto
 from src.model.excepciones import (
     InvalidNameError,
@@ -7,133 +11,51 @@ from src.model.excepciones import (
     InvalidPasswordError,
 )
 
-class Usuario:
+class Usuario(Base):
     """
-    Representa un usuario del sistema, que puede almacenar una lista de contactos
-    y manejar funciones de validación, autenticación y gestión de contactos personales.
+    Representa un usuario que puede registrarse en la base de datos y manejar contactos.
     """
+    __tablename__ = "usuario"
+    __table_args__ = {'extend_existing': True}
 
-    def __init__(self, nombre: str, email: str, password: str):
-        """
-        Inicializa un nuevo usuario con validaciones de nombre, correo y contraseña.
+    id = Column(Integer, primary_key=True)
+    nombre_usuario = Column(String(50), nullable=False, unique=True)
+    password = Column(String(128), nullable=False)
 
-        Args:
-            nombre (str): Nombre del usuario.
-            email (str): Correo electrónico del usuario.
-            password (str): Contraseña en texto plano.
-
-        Raises:
-            InvalidNameError: Si el nombre está vacío o contiene caracteres no permitidos.
-            InvalidEmailError: Si el email está vacío o no cumple el formato.
-            InvalidPasswordError: Si la contraseña es inválida o demasiado corta.
-        """
-        if not nombre.strip():
-            raise InvalidNameError("El nombre no puede estar vacío.")
-        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", nombre):
-            raise InvalidNameError(f"Nombre inválido: {nombre}")
-        
-        if not email.strip():
-            raise InvalidEmailError("El correo electrónico no puede estar vacío.")
-        if not re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", email):
-            raise InvalidEmailError(f"Correo electrónico inválido: {email}")
-        
-        if not password.strip():
-            raise InvalidPasswordError("La contraseña no puede estar vacía o compuesta solo por espacios.")
-        if len(password) < 8:
-            raise InvalidPasswordError("La contraseña debe tener al menos 8 caracteres.")
-
-        self.nombre = nombre.strip()
-        self.email = email.strip()
-        self.password = self.encriptar_contraseña(password)
+    def __init__(self, nombre_usuario: str, email: str = None, password: str = None):
+        if not self.validar_nombre(nombre_usuario):
+            raise InvalidNameError("Nombre de usuario inválido.")
+        if not self.validar_password(password):
+            raise InvalidPasswordError("Contraseña insegura.")
+        self.nombre_usuario = nombre_usuario
+        self.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         self.contactos = []
 
-    @staticmethod
-    def encriptar_contraseña(contraseña: str) -> bytes:
-        """
-        Encripta una contraseña utilizando bcrypt.
-
-        Args:
-            contraseña (str): Contraseña en texto plano.
-
-        Returns:
-            bytes: Contraseña encriptada.
-        """
-        salt = bcrypt.gensalt()
-        return bcrypt.hashpw(contraseña.encode(), salt)
-
     def verificar_contraseña(self, contraseña: str) -> bool:
-        """
-        Verifica si una contraseña coincide con la contraseña encriptada del usuario.
+        return bcrypt.checkpw(contraseña.encode(), self.password.encode())
 
-        Args:
-            contraseña (str): Contraseña en texto plano.
-
-        Returns:
-            bool: True si la contraseña es válida, False si no lo es.
-        """
-        return bcrypt.checkpw(contraseña.encode(), self.password)
-
-    def iniciar_sesion(self, email: str, contraseña: str) -> bool:
-        """
-        Verifica las credenciales del usuario para iniciar sesión.
-
-        Args:
-            email (str): Correo electrónico.
-            contraseña (str): Contraseña en texto plano.
-
-        Returns:
-            bool: True si las credenciales coinciden, False en caso contrario.
-        """
-        return self.email.lower() == email.lower() and self.verificar_contraseña(contraseña)
+    def iniciar_sesion(self, nombre_usuario: str, contraseña: str) -> bool:
+        return self.nombre_usuario.lower() == nombre_usuario.lower() and self.verificar_contraseña(contraseña)
 
     def agregar_contacto(self, contacto: Contacto):
-        """
-        Agrega un nuevo contacto al usuario si no está duplicado por correo.
-
-        Args:
-            contacto (Contacto): Objeto Contacto a agregar.
-
-        Raises:
-            ValueError: Si ya existe un contacto con el mismo email.
-        """
         if any(c.email == contacto.email for c in self.contactos):
             raise ValueError(f"El contacto con el correo {contacto.email} ya existe.")
         self.contactos.append(contacto)
 
     @property
     def obtener_contactos(self):
-        """
-        Devuelve la lista de contactos del usuario.
-
-        Returns:
-            list: Lista de objetos Contacto.
-        """
         return self.contactos
 
     @staticmethod
     def validar_email(email: str) -> bool:
-        """
-        Valida el formato de un correo electrónico.
-
-        Args:
-            email (str): Correo a validar.
-
-        Returns:
-            bool: True si el email es válido, False en caso contrario.
-        """
         pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         return re.match(pattern, email) is not None
 
     @staticmethod
     def validar_nombre(nombre: str) -> bool:
-        """
-        Valida que un nombre solo contenga letras y espacios.
-
-        Args:
-            nombre (str): Nombre a validar.
-
-        Returns:
-            bool: True si el nombre es válido, False si contiene caracteres no permitidos.
-        """
-        pattern = r"^[A-Za-z\s]+$"  
+        pattern = r"^[a-zA-Z0-9_-]{3,20}$"
         return bool(re.match(pattern, nombre.strip()))
+
+    @staticmethod
+    def validar_password(password: str) -> bool:
+        return len(password) >= 6

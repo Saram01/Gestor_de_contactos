@@ -1,5 +1,5 @@
 import os
-from src.model.contactos import Contacto
+from src.model.db import SessionLocal, Contacto
 from src.model.excepciones import (
     DuplicateContactError, InvalidPhoneNumberError, InvalidEmailError,
     ContactNotFoundError, ContactError, VCFExportError, VCFImportError
@@ -12,10 +12,10 @@ class GestorDeContactos:
     """
 
     def __init__(self):
-        """Inicializa una lista vacía de contactos."""
-        self.contactos = []
+        self.db = SessionLocal()
 
-    def agregar_contacto(self, contacto: Contacto):
+    def agregar_contacto(self, nombre, categoria, email, telefono, usuario_id):
+        session = SessionLocal()
         """
         Agrega un contacto a la lista si su email no está duplicado.
 
@@ -25,9 +25,20 @@ class GestorDeContactos:
         Raises:
             DuplicateContactError: Si ya existe un contacto con el mismo email.
         """
-        if any(c.email == contacto.email for c in self.contactos):
-            raise DuplicateContactError(contacto.nombre)
-        self.contactos.append(contacto)
+        try:
+            nuevo_contacto = Contacto(
+                nombre=nombre,
+                categoria=categoria,
+                email=email,
+                telefono=telefono,
+                usuario_id=usuario_id
+            )
+            self.db.add(nuevo_contacto)
+            self.db.commit()
+            return "Contacto agregado exitosamente."
+        except Exception as e:
+            self.db.rollback()
+            return f"Error: {e}"
 
     def eliminar_contacto(self, email: str):
         """
@@ -42,10 +53,12 @@ class GestorDeContactos:
         """
         if not email.strip():
             raise ContactError("El correo proporcionado no puede estar vacío.")
-
-        if not any(c.email == email for c in self.contactos):
+        contacto = self.db.query(Contacto).filter_by(email=email).first()
+        if not contacto:
             raise ValueError(f"No se encontró ningún contacto con el correo {email}.")
-        self.contactos = [c for c in self.contactos if c.email != email]
+        self.db.delete(contacto)
+        self.db.commit()
+
 
     def buscar_contacto(self, nombre: str):
         """
@@ -57,8 +70,8 @@ class GestorDeContactos:
         Returns:
             list: Lista de contactos que coincidan con la búsqueda.
         """
-        return [c for c in self.contactos if nombre.lower() in c.nombre.lower()]
-
+        return self.db.query(Contacto).filter(Contacto.nombre.ilike(f"%{nombre}%")).all()
+    
     def listar_contactos(self):
         """
         Lista todos los contactos almacenados.
@@ -66,7 +79,7 @@ class GestorDeContactos:
         Returns:
             list: Lista completa de contactos.
         """
-        return self.contactos
+        return self.db.query(Contacto).all()
 
     def ordenar_contactos(self, clave="nombre"):
         """
@@ -78,7 +91,7 @@ class GestorDeContactos:
         Returns:
             list: Lista de contactos ordenada.
         """
-        return sorted(self.contactos, key=lambda c: getattr(c, clave, "").lower())
+        return self.db.query(Contacto).order_by(getattr(Contacto, clave)).all()
     
     def editar_contacto(self, nombre: str, telefono: str = None, email: str = None, categoria: str = None):
         """
@@ -95,22 +108,23 @@ class GestorDeContactos:
             InvalidPhoneNumberError: Si el número de teléfono no es válido.
             InvalidEmailError: Si el email no es válido.
         """
-        if not nombre.strip():
+        contacto = self.db.query(Contacto).filter_by(nombre=nombre).first()
+        if not contacto:
             raise ContactNotFoundError(nombre)
-        for contacto in self.contactos:
-            if contacto.nombre.lower() == nombre.lower():
-                if telefono:
-                    if not Contacto.validar_numero(telefono):
-                        raise InvalidPhoneNumberError(telefono)
-                    contacto.telefono = telefono
-                if email:
-                    if not Contacto.validar_email(email):
-                        raise InvalidEmailError(email)
-                    contacto.email = email
-                if categoria is not None:
-                    contacto.categoria = categoria
-                return
-        raise ContactNotFoundError(nombre)
+
+        if telefono:
+            if not Contacto.validar_numero(telefono):
+                raise InvalidPhoneNumberError(telefono)
+            contacto.telefono = telefono
+        if email:
+            if not Contacto.validar_email(email):
+                raise InvalidEmailError(email)
+            contacto.email = email
+        if categoria is not None:
+            contacto.categoria = categoria
+
+        self.db.commit()
+        
 
     def filtrar_contacto(self, categoria: str):
         """
@@ -122,7 +136,7 @@ class GestorDeContactos:
         Returns:
             list: Lista de contactos que pertenecen a esa categoría.
         """
-        return [c for c in self.contactos if c.categoria.lower() == categoria.lower()]
+        return self.db.query(Contacto).filter(Contacto.categoria.ilike(categoria)).all()
     
     def exportar_a_vcf(self, archivo: str):
         """
@@ -135,8 +149,9 @@ class GestorDeContactos:
             VCFExportError: Si ocurre un error durante la exportación.
         """
         try:
+            contactos = self.listar_contactos()
             with open(archivo, 'w', encoding='utf-8') as f:
-                for contacto in self.contactos:
+                for contacto in contactos:
                     f.write(f"BEGIN:VCARD\n")
                     f.write(f"VERSION:3.0\n")
                     f.write(f"N:{contacto.nombre}\n")
@@ -162,28 +177,26 @@ class GestorDeContactos:
         """
         try:
             with open(archivo, 'r', encoding='utf-8') as f:
-                contacto = {}
+                contacto_data = {}
                 for linea in f:
                     linea = linea.strip()
                     if linea.startswith("BEGIN:VCARD"):
-                        contacto = {}
+                        contacto_data = {}
                     elif linea.startswith("N:"):
-                        contacto["nombre"] = linea.split(":")[1]
+                        contacto_data["nombre"] = linea.split(":", 1)[1]
                     elif linea.startswith("TEL:"):
-                        contacto["telefono"] = linea.split(":")[1]
+                        contacto_data["telefono"] = linea.split(":", 1)[1]
                     elif linea.startswith("EMAIL:"):
-                        contacto["email"] = linea.split(":")[1]
+                        contacto_data["email"] = linea.split(":", 1)[1]
                     elif linea.startswith("CATEGORY:"):
-                        contacto["categoria"] = linea.split(":")[1]
+                        contacto_data["categoria"] = linea.split(":", 1)[1]
                     elif linea.startswith("END:VCARD"):
-                        nuevo_contacto = Contacto(
-                            nombre=contacto.get("nombre"),
-                            telefono=contacto.get("telefono"),
-                            email=contacto.get("email"),
-                            categoria=contacto.get("categoria"),
-                        )
-                        self.contactos.append(nuevo_contacto)
-            print("Contactos importados exitosamente.")
+                        contacto_data["usuario_id"] = 1
+                        nuevo = Contacto(**contacto_data)
+                        if not self.db.query(Contacto).filter_by(email=nuevo.email).first():
+                            self.db.add(nuevo)
+                self.db.commit()
+                print("Contactos importados exitosamente.")
         except Exception as e:
             print(f"Error al importar contactos: {e}")
             raise VCFImportError(str(e))

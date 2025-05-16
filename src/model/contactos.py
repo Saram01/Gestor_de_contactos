@@ -1,7 +1,15 @@
+from sqlalchemy import Column, Integer, String, ForeignKey
+from src.model.db import SessionLocal
+
+session = SessionLocal()
+
 import re
 from src.model.excepciones import (InvalidEmailError, InvalidPhoneNumberError, InvalidEmailTooLong, ContactError)
 
-class Contacto:
+class Contacto(Base):
+    __tablename__ = 'contacto'
+    __table_args__ = {'extend_existing': True}
+
     """
     Clase que representa un contacto dentro del sistema de gestión.
 
@@ -17,8 +25,14 @@ class Contacto:
         InvalidEmailError: Si el email tiene un formato inválido.
         InvalidEmailTooLong: Si el email excede la cantidad máxima de caracteres.
     """
+    id = Column(Integer, primary_key=True)
+    nombre = Column(String(50), nullable=False)
+    categoria = Column(String(30), default="Sin categoría")
+    email = Column(String(100))
+    telefono = Column(String(20))
+    usuario_id = Column(Integer, ForeignKey('usuario.id'), nullable=False)
     
-    def __init__(self, nombre: str, telefono: str, email: str, categoria: str = "Sin categoría"):
+    def __init__(self, nombre: str, telefono: str, email: str, categoria: str = "Sin categoría", usuario_id: int = None):
         """
         Inicializa un nuevo contacto validando sus campos.
 
@@ -39,13 +53,15 @@ class Contacto:
         if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", nombre):
             raise ContactError("El nombre contiene caracteres no permitidos.")
         if not self.validar_numero(telefono):
-            raise InvalidPhoneNumberError("Número de teléfono inválido, debe tener al menos 10 dígitos.")
+            raise InvalidPhoneNumberError("Número de teléfono inválido, debe tener exactamente 10 dígitos.")
         if not self.validar_email(email):
             raise InvalidEmailError("Formato de correo electrónico inválido.")
+        
         self.nombre = nombre.strip()
         self.telefono = telefono
         self.email = email
         self.categoria = categoria.strip() if categoria.strip() else "Sin categoría"
+        self.usuario_id = usuario_id
 
     def __str__(self):
         """
@@ -86,6 +102,5 @@ class Contacto:
         """
         if len(email) > maximo_caracteres:
             raise InvalidEmailTooLong(email, maximo_caracteres)
-        pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z]{2,}$"
+        pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$"
         return re.match(pattern, email) is not None
-

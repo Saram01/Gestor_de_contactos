@@ -1,264 +1,85 @@
-import bcrypt
+import sys
+import os
+
 from kivy.app import App
-from kivy.uix.screenmanager import Screen, ScreenManager
-from kivy.uix.screenmanager import Screen
+from kivy.uix.screenmanager import ScreenManager, Screen
+
+
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from src.model.gestor_usuarios import GestorDeUsuarios
+from src.model.gestor_contactos import GestorDeContactos
 from src.model.contactos import Contacto
-from src.model.excepciones import (
-    InvalidNameError,
-    InvalidEmailError,
-    InvalidPasswordError,
-)
 
 gestor_usuarios = GestorDeUsuarios()
-
+gestor_contactos = GestorDeContactos()
 
 class LoginScreen(Screen):
-    """
-    Pantalla de inicio de sesión del usuario.
-    """
-
     def iniciar_sesion(self):
-        """
-        Maneja el proceso de inicio de sesión del usuario.
-        Valida los campos, verifica credenciales y navega al menú principal si son correctas.
-        """
-        try:
-            email = self.ids.email_input.text.strip()
-            password = self.ids.password_input.text.strip()
-            print(f"Email: {email}, Password: {password}")
+        email = self.ids.email_input.text.strip()
+        password = self.ids.password_input.text.strip()
 
-            if not email or not password:
-                self.ids.message_label.text = "Por favor, completa todos los campos."
-                return
-
-            usuario = gestor_usuarios.validar_credenciales(email, password)
-            if usuario:
-                print(f"Usuario encontrado: {usuario.nombre}")
-                self.manager.current = 'menu'
-                print("Cambiando a pantalla 'menu'")
-                self.manager.get_screen('menu').ids.welcome_label.text = f"Bienvenido, {usuario.nombre}!"
-            else:
-                self.ids.message_label.text = "Error: Credenciales inválidas."
-        except AttributeError as e:
-            print(f"Atributo no encontrado: {e}")
-        except Exception as e:
-            print(f"Error inesperado: {e}")
-
-
-class RegisterScreen(Screen):
-    """
-    Pantalla de registro de nuevos usuarios.
-    """
-
-    def registrar_usuario(self):
-        """
-        Registra un nuevo usuario en el sistema tras validar los campos.
-        Muestra mensajes de error si los datos no son válidos.
-        """
-        try:
-            nombre = self.ids.nombre_input.text.strip()
-            email = self.ids.email_input.text.strip()
-            password = self.ids.password_input.text.strip()
-
-            if not nombre:
-                self.ids.message_label.text = "El nombre no puede estar vacío."
-                return
-            if not email:
-                self.ids.message_label.text = "El correo no puede estar vacío."
-                return
-            if not password:
-                self.ids.message_label.text = "La contraseña no puede estar vacía."
-                return
-
-            mensaje = gestor_usuarios.registrar_usuario(nombre, email, password)
-            if "Usuario registrado exitosamente" in mensaje:
-                self.ids.message_label.text = "¡Usuario registrado exitosamente! Por favor, inicia sesión."
-                self.manager.current = 'login'
-            else:
-                self.ids.message_label.text = mensaje
-        except InvalidEmailError as e:
-            self.ids.message_label.text = str(e)
-        except Exception as e:
-            self.ids.message_label.text = "Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo."
-            print(f"Error inesperado: {e}")
-
-
-class MenuScreen(Screen):
-    """
-    Pantalla principal del sistema después de iniciar sesión.
-    Permite al usuario buscar, agregar, editar, eliminar, importar y exportar contactos.
-    """
-
-    def buscar_contacto(self):
-        """
-        Busca un contacto por nombre en la lista del usuario actual.
-        """
-        nombre = self.ids.buscar_nombre_input.text.strip()
-        
-        if not nombre:
-            self.ids.contactos_label.text = "Por favor, introduce un nombre para buscar."
+        if not email or not password:
+            self.ids.message_label.text = "Por favor completa todos los campos."
             return
 
-        try:
-            usuario_actual = gestor_usuarios.usuarios[-1]
-            resultados = [contacto for contacto in usuario_actual.obtener_contactos if contacto.nombre.lower() == nombre.lower()]
-            
-            if resultados:
-                self.ids.contactos_label.text = f"Contactos encontrados: {', '.join([c.nombre for c in resultados])}"
-            else:
-                self.ids.contactos_label.text = "No se encontraron contactos con ese nombre."
-        except IndexError:
-            self.ids.contactos_label.text = "No hay usuarios registrados aún."
+        usuario = gestor_usuarios.validar_credenciales(email, password)
+        if usuario:
+            self.manager.current = 'menu'
+            self.manager.get_screen('menu').ids.welcome_label.text = f"Bienvenido, {usuario.nombre}!"
+            self.ids.message_label.text = ""
+        else:
+            self.ids.message_label.text = "Credenciales inválidas."
 
+class RegisterScreen(Screen):
+    def registrar_usuario(self):
+        nombre = self.ids.nombre_input.text.strip()
+        email = self.ids.email_input.text.strip()
+        password = self.ids.password_input.text.strip()
+
+        if not nombre or not email or not password:
+            self.ids.message_label.text = "Completa todos los campos."
+            return
+
+        mensaje = gestor_usuarios.registrar_usuario(nombre, email, password)
+        self.ids.message_label.text = mensaje
+        if "exitosamente" in mensaje:
+            self.manager.current = 'login'
+
+class MenuScreen(Screen):
     def agregar_contacto(self):
-        """
-        Agrega un nuevo contacto al usuario actual.
-        Valida los campos requeridos y muestra errores si es necesario.
-        """
         nombre = self.ids.nombre_input.text.strip()
         telefono = self.ids.telefono_input.text.strip()
         email = self.ids.email_input.text.strip()
         categoria = self.ids.categoria_input.text.strip()
 
         if not nombre or not telefono or not email:
-            self.ids.contactos_label.text = "Por favor, completa los campos obligatorios: Nombre, Teléfono y Email."
+            self.ids.info_label.text = "Completa Nombre, Teléfono y Email."
             return
 
-        try:
-            nuevo_contacto = Contacto(nombre=nombre, telefono=telefono, email=email, categoria=categoria)
-            usuario_actual = gestor_usuarios.usuarios[-1]
-            usuario_actual.agregar_contacto(nuevo_contacto)
-            self.ids.contactos_label.text = f"Contacto agregado exitosamente: {nombre}"
-        except IndexError:
-            self.ids.contactos_label.text = "No hay usuarios registrados para agregar contactos."
-        except ValueError as e:
-            self.ids.contactos_label.text = str(e)
+        nuevo_contacto = Contacto(nombre, telefono, email, categoria)
+        gestor_contactos.agregar_contacto(nuevo_contacto)
+        self.ids.info_label.text = f"Contacto '{nombre}' agregado."
 
     def listar_contactos(self):
-        """
-        Muestra todos los contactos del usuario actual.
-        """
-        try:
-            usuario_actual = gestor_usuarios.usuarios[-1]
-            contactos = usuario_actual.obtener_contactos
-            if contactos:
-                self.ids.contactos_label.text = '\n'.join([f"{c.nombre} - {c.email}" for c in contactos])
-            else:
-                self.ids.contactos_label.text = "No hay contactos registrados."
-        except IndexError:
-            self.ids.contactos_label.text = "No hay usuarios registrados."
+        contactos = gestor_contactos.listar_contactos()
+        if contactos:
+            texto = '\n'.join([f"{c.nombre} - {c.email}" for c in contactos])
+            self.ids.info_label.text = texto
+        else:
+            self.ids.info_label.text = "No hay contactos."
 
-    def eliminar_contacto(self):
-        """
-        Elimina un contacto del usuario actual por su correo electrónico.
-        """
-        email = self.ids.eliminar_email_input.text.strip()
-        if not email:
-            self.ids.contactos_label.text = "Por favor, introduce un email para eliminar."
-            return
-
-        try:
-            usuario_actual = gestor_usuarios.usuarios[-1]
-            usuario_actual.contactos = [c for c in usuario_actual.obtener_contactos if c.email != email]
-            self.ids.contactos_label.text = f"El contacto con el correo {email} ha sido eliminado."
-        except IndexError:
-            self.ids.contactos_label.text = "No hay usuarios registrados."
-        except Exception as e:
-            self.ids.contactos_label.text = str(e)
-
-    def editar_contacto(self):
-        """
-        Edita la información de un contacto existente, si se encuentra por nombre.
-        """
-        try:
-            nombre_actual = self.ids.editar_nombre_actual_input.text.strip()
-            nombre_nuevo = self.ids.editar_nombre_nuevo_input.text.strip()
-            telefono_nuevo = self.ids.editar_telefono_nuevo_input.text.strip()
-            email_nuevo = self.ids.editar_email_nuevo_input.text.strip()
-            categoria_nueva = self.ids.editar_categoria_nueva_input.text.strip()
-
-            usuario_actual = gestor_usuarios.usuarios[-1]
-            contacto = next((c for c in usuario_actual.obtener_contactos if c.nombre.lower() == nombre_actual.lower()), None)
-
-            if not contacto:
-                self.ids.editar_message_label.text = f"No se encontró ningún contacto con el nombre '{nombre_actual}'."
-                return
-
-            if nombre_nuevo:
-                contacto.nombre = nombre_nuevo
-            if telefono_nuevo:
-                contacto.telefono = telefono_nuevo
-            if email_nuevo:
-                contacto.email = email_nuevo
-            if categoria_nueva:
-                contacto.categoria = categoria_nueva
-
-            self.ids.editar_message_label.text = f"Contacto '{nombre_actual}' actualizado exitosamente."
-        except IndexError:
-            self.ids.editar_message_label.text = "No hay usuarios registrados."
-        except Exception as e:
-            self.ids.editar_message_label.text = str(e)
-
-    def exportar_contactos(self):
-        """
-        Exporta la lista de contactos del usuario actual a un archivo VCF.
-        """
-        archivo = self.ids.exportar_archivo_input.text.strip()
-        if not archivo:
-            self.ids.contactos_label.text = "Por favor, introduce un nombre de archivo para exportar."
-            return
-
-        try:
-            usuario_actual = gestor_usuarios.usuarios[-1]
-            usuario_actual.exportar_a_vcf(archivo)
-            self.ids.contactos_label.text = f"Contactos exportados exitosamente a '{archivo}'."
-        except IndexError:
-            self.ids.contactos_label.text = "No hay usuarios registrados."
-        except Exception as e:
-            self.ids.contactos_label.text = f"Error al exportar contactos: {str(e)}"
-
-    def importar_contactos(self):
-        """
-        Importa contactos desde un archivo VCF y los agrega al usuario actual.
-        """
-        archivo = self.ids.importar_archivo_input.text.strip()
-        if not archivo:
-            self.ids.contactos_label.text = "Por favor, introduce un nombre de archivo para importar."
-            return
-
-        try:
-            usuario_actual = gestor_usuarios.usuarios[-1]
-            usuario_actual.importar_desde_vcf(archivo)
-            self.ids.contactos_label.text = "Contactos importados exitosamente."
-            self.listar_contactos()
-        except IndexError:
-            self.ids.contactos_label.text = "No hay usuarios registrados."
-        except Exception as e:
-            self.ids.contactos_label.text = f"Error al importar contactos: {str(e)}"
-
+    def cerrar_sesion(self):
+        self.manager.current = 'login'
 
 class MainApp(App):
-    """
-    Clase principal de la aplicación, configura y lanza la interfaz con Kivy.
-    """
-
     def build(self):
-        """
-        Crea y configura el gestor de pantallas.
-        
-        Returns:
-            ScreenManager: Administrador de pantallas de la app.
-        """
         sm = ScreenManager()
         sm.add_widget(LoginScreen(name='login'))
         sm.add_widget(RegisterScreen(name='register'))
         sm.add_widget(MenuScreen(name='menu'))
         return sm
 
-
 if __name__ == '__main__':
-    try:
-        MainApp().run()
-    except Exception as e:
-        print(f"Se ha producido un error inesperado: {e}")
+    MainApp().run()

@@ -84,3 +84,14 @@ def test_contacto_sin_categoria():
     """Verifica que se permita una categoría personalizada aún si es parecida a 'Sin categoría'."""
     contacto = Contacto("David", "9876543210", "david@correo.com", "Sin categoria")
     assert contacto.categoria == "Sin categoria"
+
+def test_email_sin_arroba():
+    """Verifica que se lance InvalidEmailError si el email no contiene el carácter '@'."""
+    email = "juan.correo.com"  # Falta el '@'
+    with pytest.raises(InvalidEmailError):
+        validar_contacto("Juan", "1234567890", email)
+
+def test_nombre_vacio():
+    """Verifica que se lance ContactError si el nombre está completamente vacío."""
+    with pytest.raises(ContactError):
+        validar_contacto("", "1234567890", "juan@correo.com")

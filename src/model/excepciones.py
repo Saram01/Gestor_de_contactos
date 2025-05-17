@@ -1,3 +1,5 @@
+import os
+
 class ContactError(Exception):
     """
     Excepción base para errores relacionados con contactos.

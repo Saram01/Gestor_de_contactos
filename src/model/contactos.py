@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
-from src.model.db import SessionLocal
+from src.model.db import Base
 
-session = SessionLocal()
 
 import re
 from src.model.excepciones import (InvalidEmailError, InvalidPhoneNumberError, InvalidEmailTooLong, ContactError)
+
 
 class Contacto(Base):
     __tablename__ = 'contacto'

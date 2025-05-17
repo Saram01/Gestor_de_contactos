@@ -1,7 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from src.model.db import SessionLocal
-
-session = SessionLocal()
+from src.model.db import SessionLocal, Base
 import bcrypt
 import re
 from src.model.contactos import Contacto
@@ -10,6 +8,8 @@ from src.model.excepciones import (
     InvalidEmailError,
     InvalidPasswordError,
 )
+
+session = SessionLocal()
 
 class Usuario(Base):
     """

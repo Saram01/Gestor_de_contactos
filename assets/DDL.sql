@@ -1,5 +1,4 @@
-DROP TABLE IF EXISTS contacto CASCADE;
-DROP TABLE IF EXISTS usuario CASCADE;
+
 
 CREATE TABLE usuario (
     id SERIAL PRIMARY KEY,
@@ -21,7 +20,9 @@ CREATE TABLE contacto (
 INSERT INTO usuario (nombre_usuario, email, contrasena) VALUES
 ('joel', 'joel@correo.com', 'contraseña_segura123'),
 ('maryjane', 'maryjane@correo.com', 'contraseña_segura456'),
-('peterparker', 'peterparker@correo.com', 'contraseña_segura789');
+('peterparker', 'peterparker@correo.com', 'contraseña_segura789'),
+('Danteinferno', 'danteinferno@correo.com', 'dante123000'),
+('Spartan', 'spartan@correo.com', 'halo2025');
 
 INSERT INTO contacto (nombre, categoria, email, telefono, usuario_id) VALUES
 ('Juan Pérez', 'Amigos', 'juanperez@example.com', '1234567890', 1),

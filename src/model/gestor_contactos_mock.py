@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from src.gestor_contactos import GestorDeContactos
+from src.model.gestor_contactos import GestorDeContactos
 
 def test_agregar_contacto_mockeado():
     gestor = GestorDeContactos()

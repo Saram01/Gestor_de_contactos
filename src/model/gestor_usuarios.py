@@ -2,7 +2,6 @@ import bcrypt
 from src.model.usuario import Usuario
 from src.model.db import SessionLocal
 
-session = SessionLocal()
 
 
 class GestorDeUsuarios:
@@ -17,7 +16,7 @@ class GestorDeUsuarios:
             if usuario_existente:
                 return "El usuario ya está registrado."
 
-            nuevo_usuario = Usuario(nombre=nombre, email=email, password=contrasena)
+            nuevo_usuario = Usuario(nombre_usuario=nombre, email=email, password=contrasena)
             session.add(nuevo_usuario)
             session.commit()
             return "Usuario registrado exitosamente."
@@ -27,10 +26,10 @@ class GestorDeUsuarios:
         finally:
             session.close()
 
-    def validar_credenciales(self, nombre_usuario: str, contrasena: str):
+    def validar_credenciales(self, nombre: str, contrasena: str):
         session = SessionLocal()
         try:
-            usuario = session.query(Usuario).filter_by(nombre_usuario=nombre_usuario).first()
+            usuario = session.query(Usuario).filter_by(nombre=nombre).first()
             if usuario and usuario.verificar_contraseña(contrasena):
                 return usuario
             return None

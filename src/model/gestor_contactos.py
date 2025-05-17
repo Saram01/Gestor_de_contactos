@@ -1,4 +1,5 @@
 import os
+from src.model.contactos import Contacto
 from src.model.db import SessionLocal, Contacto
 from src.model.excepciones import (
     DuplicateContactError, InvalidPhoneNumberError, InvalidEmailError,
@@ -15,7 +16,6 @@ class GestorDeContactos:
         self.db = SessionLocal()
 
     def agregar_contacto(self, nombre, categoria, email, telefono, usuario_id):
-        session = SessionLocal()
         """
         Agrega un contacto a la lista si su email no está duplicado.
 
@@ -25,6 +25,8 @@ class GestorDeContactos:
         Raises:
             DuplicateContactError: Si ya existe un contacto con el mismo email.
         """
+        if self.db.query(Contacto).filter_by(email=email).first():
+            raise DuplicateContactError(f"Ya existe un contacto con email {email}")
         try:
             nuevo_contacto = Contacto(
                 nombre=nombre,

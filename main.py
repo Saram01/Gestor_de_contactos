@@ -3,14 +3,10 @@ import os
 
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
-
-
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from src.model.gestor_usuarios import GestorDeUsuarios
 from src.model.gestor_contactos import GestorDeContactos
 from src.model.contactos import Contacto
+from src.model.usuario import Usuario
 
 gestor_usuarios = GestorDeUsuarios()
 gestor_contactos = GestorDeContactos()

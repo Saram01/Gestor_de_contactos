@@ -9,7 +9,7 @@ from src.model.contactos import Contacto
 from src.model.usuario import Usuario
 
 gestor_usuarios = GestorDeUsuarios()
-gestor_contactos = GestorDeContactos()
+
 
 class LoginScreen(Screen):
     def iniciar_sesion(self):
@@ -22,11 +22,16 @@ class LoginScreen(Screen):
 
         usuario = gestor_usuarios.validar_credenciales(email, password)
         if usuario:
+            # Creamos el gestor de contactos para este usuario
+            self.manager.get_screen('menu').usuario_actual = usuario
+            self.manager.get_screen('menu').gestor_contactos = GestorDeContactos(usuario)
+
             self.manager.current = 'menu'
-            self.manager.get_screen('menu').ids.welcome_label.text = f"Bienvenido, {usuario.nombre}!"
+            self.manager.get_screen('menu').ids.welcome_label.text = f"Bienvenido, {usuario.nombre_usuario}!"
             self.ids.message_label.text = ""
         else:
             self.ids.message_label.text = "Credenciales inválidas."
+
 
 class RegisterScreen(Screen):
     def registrar_usuario(self):
@@ -43,7 +48,11 @@ class RegisterScreen(Screen):
         if "exitosamente" in mensaje:
             self.manager.current = 'login'
 
+
 class MenuScreen(Screen):
+    usuario_actual = None
+    gestor_contactos = None
+
     def agregar_contacto(self):
         nombre = self.ids.nombre_input.text.strip()
         telefono = self.ids.telefono_input.text.strip()
@@ -55,11 +64,11 @@ class MenuScreen(Screen):
             return
 
         nuevo_contacto = Contacto(nombre, telefono, email, categoria)
-        gestor_contactos.agregar_contacto(nuevo_contacto)
+        self.gestor_contactos.agregar_contacto(nuevo_contacto)
         self.ids.info_label.text = f"Contacto '{nombre}' agregado."
 
     def listar_contactos(self):
-        contactos = gestor_contactos.listar_contactos()
+        contactos = self.gestor_contactos.listar_contactos()
         if contactos:
             texto = '\n'.join([f"{c.nombre} - {c.email}" for c in contactos])
             self.ids.info_label.text = texto
@@ -67,7 +76,9 @@ class MenuScreen(Screen):
             self.ids.info_label.text = "No hay contactos."
 
     def cerrar_sesion(self):
+        self.usuario_actual = None
         self.manager.current = 'login'
+
 
 class MainApp(App):
     def build(self):
@@ -77,5 +88,7 @@ class MainApp(App):
         sm.add_widget(MenuScreen(name='menu'))
         return sm
 
+
 if __name__ == '__main__':
     MainApp().run()
+

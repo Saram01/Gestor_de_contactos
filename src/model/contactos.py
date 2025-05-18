@@ -8,7 +8,6 @@ from src.model.excepciones import (InvalidEmailError, InvalidPhoneNumberError, I
 
 class Contacto(Base):
     __tablename__ = 'contacto'
-    __table_args__ = {'extend_existing': True}
 
     """
     Clase que representa un contacto dentro del sistema de gestión.

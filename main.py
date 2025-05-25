@@ -7,9 +7,18 @@ from src.model.gestor_usuarios import GestorDeUsuarios
 from src.model.gestor_contactos import GestorDeContactos
 from src.model.contactos import Contacto
 from src.model.usuario import Usuario
+from src.model.storage import StorageMemoria, StorageDB
 
-gestor_usuarios = GestorDeUsuarios()
-
+try:
+    from src.model.db import SessionLocal, crear_tablas
+    crear_tablas()
+    session = SessionLocal()
+    storage = StorageDB(session)
+    print("Conectado a la base de datos.")
+except Exception as e:
+    storage = StorageMemoria()
+    print("No se pudo conectar a la base de datos. Usando almacenamiento en memoria.")
+gestor_usuarios = GestorDeUsuarios(storage)
 
 class LoginScreen(Screen):
     def iniciar_sesion(self):
@@ -22,16 +31,13 @@ class LoginScreen(Screen):
 
         usuario = gestor_usuarios.validar_credenciales(email, password)
         if usuario:
-            # Creamos el gestor de contactos para este usuario
             self.manager.get_screen('menu').usuario_actual = usuario
-            self.manager.get_screen('menu').gestor_contactos = GestorDeContactos(usuario)
-
+            self.manager.get_screen('menu').gestor_contactos = GestorDeContactos(usuario, storage)
             self.manager.current = 'menu'
             self.manager.get_screen('menu').ids.welcome_label.text = f"Bienvenido, {usuario.nombre_usuario}!"
             self.ids.message_label.text = ""
         else:
             self.ids.message_label.text = "Credenciales inválidas."
-
 
 class RegisterScreen(Screen):
     def registrar_usuario(self):
@@ -47,7 +53,6 @@ class RegisterScreen(Screen):
         self.ids.message_label.text = mensaje
         if "exitosamente" in mensaje:
             self.manager.current = 'login'
-
 
 class MenuScreen(Screen):
     usuario_actual = None
@@ -79,7 +84,6 @@ class MenuScreen(Screen):
         self.usuario_actual = None
         self.manager.current = 'login'
 
-
 class MainApp(App):
     def build(self):
         sm = ScreenManager()
@@ -87,7 +91,6 @@ class MainApp(App):
         sm.add_widget(RegisterScreen(name='register'))
         sm.add_widget(MenuScreen(name='menu'))
         return sm
-
 
 if __name__ == '__main__':
     MainApp().run()

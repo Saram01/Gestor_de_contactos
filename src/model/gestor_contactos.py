@@ -6,26 +6,21 @@ from src.model.excepciones import (
 )
 
 class GestorDeContactos:
-    def __init__(self, usuario):
+    def __init__(self, usuario, storage):
         self.usuario = usuario
-    """
-    Clase para gestionar una lista de contactos, incluyendo operaciones de agregar,
-    eliminar, editar, buscar, filtrar y exportar/importar contactos en formato VCF.
-    """
+        self.storage = storage
+
     def agregar_contacto(self, contacto):
-        """
-        Agrega un contacto a la lista si su email no está duplicado.
+        self.storage.agregar_contacto(self.usuario, contacto)
 
-        Args:
-            contacto (Contacto): Objeto contacto a agregar.
-
-        Raises:
-            DuplicateContactError: Si ya existe un contacto con el mismo email.
+    def listar_contactos(self):
         """
-        if any(c.email == contacto.email for c in self.usuario.contactos):
-            raise ValueError(f"El contacto con el correo {contacto.email} ya existe.")
-        self.usuario.contactos.append(contacto)
-        return "Contacto agregado exitosamente."
+        Lista todos los contactos almacenados.
+
+        Returns:
+            list: Lista completa de contactos.
+        """
+        return self.storage.listar_contactos(self.usuario)
 
     def eliminar_contacto(self, email: str):
         """
@@ -40,12 +35,7 @@ class GestorDeContactos:
         """
         if not email.strip():
             raise ContactError("El correo proporcionado no puede estar vacío.")
-        contacto = self.db.query(Contacto).filter_by(email=email).first()
-        if not contacto:
-            raise ValueError(f"No se encontró ningún contacto con el correo {email}.")
-        self.db.delete(contacto)
-        self.db.commit()
-
+        self.storage.eliminar_contacto(self.usuario, email)
 
     def buscar_contacto(self, nombre: str):
         """
@@ -57,16 +47,7 @@ class GestorDeContactos:
         Returns:
             list: Lista de contactos que coincidan con la búsqueda.
         """
-        return self.db.query(Contacto).filter(Contacto.nombre.ilike(f"%{nombre}%")).all()
-    
-    def listar_contactos(self):
-        """
-        Lista todos los contactos almacenados.
-
-        Returns:
-            list: Lista completa de contactos.
-        """
-        return self.usuario.contactos
+        return self.storage.buscar_contacto(self.usuario, nombre)
 
     def ordenar_contactos(self, clave="nombre"):
         """
@@ -78,8 +59,8 @@ class GestorDeContactos:
         Returns:
             list: Lista de contactos ordenada.
         """
-        return self.db.query(Contacto).order_by(getattr(Contacto, clave)).all()
-    
+        return self.storage.ordenar_contactos(self.usuario, clave)
+
     def editar_contacto(self, nombre: str, telefono: str = None, email: str = None, categoria: str = None):
         """
         Edita los datos de un contacto existente.
@@ -95,23 +76,7 @@ class GestorDeContactos:
             InvalidPhoneNumberError: Si el número de teléfono no es válido.
             InvalidEmailError: Si el email no es válido.
         """
-        contacto = self.db.query(Contacto).filter_by(nombre=nombre).first()
-        if not contacto:
-            raise ContactNotFoundError(nombre)
-
-        if telefono:
-            if not Contacto.validar_numero(telefono):
-                raise InvalidPhoneNumberError(telefono)
-            contacto.telefono = telefono
-        if email:
-            if not Contacto.validar_email(email):
-                raise InvalidEmailError(email)
-            contacto.email = email
-        if categoria is not None:
-            contacto.categoria = categoria
-
-        self.db.commit()
-        
+        self.storage.editar_contacto(self.usuario, nombre, telefono, email, categoria)
 
     def filtrar_contacto(self, categoria: str):
         """
@@ -123,8 +88,8 @@ class GestorDeContactos:
         Returns:
             list: Lista de contactos que pertenecen a esa categoría.
         """
-        return self.db.query(Contacto).filter(Contacto.categoria.ilike(categoria)).all()
-    
+        return self.storage.filtrar_contacto(self.usuario, categoria)
+
     def exportar_a_vcf(self, archivo: str):
         """
         Exporta los contactos actuales a un archivo VCF.
@@ -178,12 +143,13 @@ class GestorDeContactos:
                     elif linea.startswith("CATEGORY:"):
                         contacto_data["categoria"] = linea.split(":", 1)[1]
                     elif linea.startswith("END:VCARD"):
-                        contacto_data["usuario_id"] = 1
+                        contacto_data["usuario_id"] = self.usuario.id if hasattr(self.usuario, "id") else 1
                         nuevo = Contacto(**contacto_data)
-                        if not self.db.query(Contacto).filter_by(email=nuevo.email).first():
-                            self.db.add(nuevo)
-                self.db.commit()
-                print("Contactos importados exitosamente.")
+                        try:
+                            self.agregar_contacto(nuevo)
+                        except Exception:
+                            pass
+            print("Contactos importados exitosamente.")
         except Exception as e:
             print(f"Error al importar contactos: {e}")
             raise VCFImportError(str(e))

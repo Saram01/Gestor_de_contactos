@@ -1,43 +1,17 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
-from sqlalchemy.orm import sessionmaker, declarative_base, relationship
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from src.model.base import Base
 import traceback
 
-DATABASE_URL = "postgresql://usuario:contraseña@localhost:5432/Contactos"
+DATABASE_URL = "postgresql://mamau:postgres@localhost:5432/Contactos"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
 
-try:
-    Base.metadata.create_all(bind=engine)
-except Exception as e:
-    print("[ERROR] No se pudo conectar con la base de datos al iniciar.")
-    traceback.print_exc()
-
-
-class Usuario(Base):
-    __tablename__ = 'usuario'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    nombre_usuario = Column(String(30), unique=True, nullable=False)
-    contrasena = Column(String(100), nullable=False)
-    contactos = relationship("Contacto", back_populates="usuario")
-
-    def __repr__(self):
-        return f"<Usuario(nombre_usuario={self.nombre_usuario})>"
-
-
-class Contacto(Base):
-    __tablename__ = 'contacto'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    nombre = Column(String(50), nullable=False)
-    categoria = Column(String(30))
-    email = Column(String(100), unique=True)
-    telefono = Column(String(20), unique=True)
-    usuario_id = Column(Integer, ForeignKey('usuario.id'), nullable=False)
-    usuario = relationship("Usuario", back_populates="contactos")
-
-    def __repr__(self):
-        return f"<Contacto(nombre={self.nombre}, categoria={self.categoria})>"
-
+def crear_tablas():
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print("[ERROR] No se pudo conectar con la base de datos al iniciar.")
+        traceback.print_exc()
+        raise e

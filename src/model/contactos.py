@@ -1,10 +1,18 @@
-
 import re
+from src.model.base import Base
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship
 from src.model.excepciones import (InvalidEmailError, InvalidPhoneNumberError, InvalidEmailTooLong, ContactError)
+from src.model.db import Base
 
+try:
+    from src.model.db import Base
+except ImportError:
+    Base = declarative_base()
 
-class Contacto:
-
+class Contacto(Base):
+    __tablename__ = 'contacto'
+    __table_args__ = {'extend_existing': True}
     """
     Clase que representa un contacto dentro del sistema de gestión.
 
@@ -20,6 +28,18 @@ class Contacto:
         InvalidEmailError: Si el email tiene un formato inválido.
         InvalidEmailTooLong: Si el email excede la cantidad máxima de caracteres.
     """
+
+    __tablename__ = 'contacto'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(50), nullable=False)
+    categoria = Column(String(30))
+    email = Column(String(100), unique=True)
+    telefono = Column(String(20), unique=True)
+    usuario_id = Column(Integer, ForeignKey('usuario.id'), nullable=False)
+    usuario = relationship("Usuario", back_populates="contactos")
+
+
     def __init__(self, nombre: str, telefono: str, email: str, categoria: str = "Sin categoría", usuario_id: int = None):
         """
         Inicializa un nuevo contacto validando sus campos.
@@ -29,7 +49,8 @@ class Contacto:
             telefono (str): Número de teléfono.
             email (str): Correo electrónico.
             categoria (str, opcional): Categoría del contacto. Por defecto es "Sin categoría".
-        
+            usuario_id (int, opcional): ID del usuario dueño del contacto.
+
         Raises:
             ContactError: Si el nombre está vacío o tiene caracteres no permitidos.
             InvalidPhoneNumberError: Si el teléfono no tiene 10 dígitos.
@@ -44,7 +65,7 @@ class Contacto:
             raise InvalidPhoneNumberError("Número de teléfono inválido, debe tener exactamente 10 dígitos.")
         if not self.validar_email(email):
             raise InvalidEmailError("Formato de correo electrónico inválido.")
-        
+
         self.nombre = nombre.strip()
         self.telefono = telefono
         self.email = email

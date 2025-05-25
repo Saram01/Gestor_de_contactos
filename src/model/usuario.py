@@ -1,40 +1,40 @@
 import bcrypt
 import re
-from src.model.contactos import Contacto
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
+from src.model.base import Base
 from src.model.excepciones import (
     InvalidNameError,
     InvalidEmailError,
     InvalidPasswordError,
 )
 
-class Usuario:
+class Usuario(Base):
     """
     Representa un usuario que puede registrarse y manejar contactos.
     """
-    def __init__(self, nombre_usuario: str, email: str = None, password: str = None):
+    __tablename__ = 'usuario'
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre_usuario = Column(String(30), unique=True, nullable=False)
+    email = Column(String(100), unique=True, nullable=False)
+    contrasena = Column(String(100), nullable=False)
+    contactos = relationship("Contacto", back_populates="usuario")
+
+    def __init__(self, nombre_usuario: str, email: str, password: str):
         if not self.validar_nombre(nombre_usuario):
             raise InvalidNameError("Nombre de usuario inválido.")
+        if not self.validar_email(email):
+            raise InvalidEmailError("Email inválido.")
         if not self.validar_password(password):
             raise InvalidPasswordError("Contraseña insegura.")
         self.nombre_usuario = nombre_usuario
         self.email = email
-        self.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-        self.contactos = []
+        self.contrasena = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
     def verificar_contraseña(self, contraseña: str) -> bool:
-        return bcrypt.checkpw(contraseña.encode(), self.password.encode())
-
-    def iniciar_sesion(self, nombre_usuario: str, contraseña: str) -> bool:
-        return self.nombre_usuario.lower() == nombre_usuario.lower() and self.verificar_contraseña(contraseña)
-
-    def agregar_contacto(self, contacto: Contacto):
-        if any(c.email == contacto.email for c in self.contactos):
-            raise ValueError(f"El contacto con el correo {contacto.email} ya existe.")
-        self.contactos.append(contacto)
-
-    @property
-    def obtener_contactos(self):
-        return self.contactos
+        return bcrypt.checkpw(contraseña.encode(), self.contrasena.encode())
 
     @staticmethod
     def validar_email(email: str) -> bool:
@@ -49,3 +49,6 @@ class Usuario:
     @staticmethod
     def validar_password(password: str) -> bool:
         return len(password) >= 6
+
+    def __repr__(self):
+        return f"<Usuario(nombre_usuario={self.nombre_usuario}, email={self.email})>"

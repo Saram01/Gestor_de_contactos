@@ -1,16 +1,19 @@
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy.orm import declarative_base
-#from sqlalchemy import inspect
+from sqlalchemy.orm import sessionmaker, declarative_base, relationship
+import traceback
 
+DATABASE_URL = "postgresql://usuario:contraseña@localhost:5432/Contactos"
 
-
-
-url_conexion = "postgresql://mamau:postgres@localhost:5432/Contactos"
-
-engine = create_engine(url_conexion, echo=True)
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print("[ERROR] No se pudo conectar con la base de datos al iniciar.")
+    traceback.print_exc()
+
 
 class Usuario(Base):
     __tablename__ = 'usuario'
@@ -22,6 +25,7 @@ class Usuario(Base):
 
     def __repr__(self):
         return f"<Usuario(nombre_usuario={self.nombre_usuario})>"
+
 
 class Contacto(Base):
     __tablename__ = 'contacto'
@@ -37,7 +41,3 @@ class Contacto(Base):
     def __repr__(self):
         return f"<Contacto(nombre={self.nombre}, categoria={self.categoria})>"
 
-Base.metadata.create_all(bind=engine)
-
-#inspector = inspect(engine)
-#print(inspector.get_table_names())

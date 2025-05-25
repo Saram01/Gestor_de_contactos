@@ -1,5 +1,3 @@
-from sqlalchemy import Column, Integer, String
-from src.model.db import SessionLocal, Base
 import bcrypt
 import re
 from src.model.contactos import Contacto
@@ -9,25 +7,17 @@ from src.model.excepciones import (
     InvalidPasswordError,
 )
 
-session = SessionLocal()
-
-class Usuario(Base):
+class Usuario:
     """
-    Representa un usuario que puede registrarse en la base de datos y manejar contactos.
+    Representa un usuario que puede registrarse y manejar contactos.
     """
-    __tablename__ = "usuario"
-    __table_args__ = {'extend_existing': True}
-
-    id = Column(Integer, primary_key=True)
-    nombre_usuario = Column(String(50), nullable=False, unique=True)
-    password = Column(String(128), nullable=False)
-
     def __init__(self, nombre_usuario: str, email: str = None, password: str = None):
         if not self.validar_nombre(nombre_usuario):
             raise InvalidNameError("Nombre de usuario inválido.")
         if not self.validar_password(password):
             raise InvalidPasswordError("Contraseña insegura.")
         self.nombre_usuario = nombre_usuario
+        self.email = email
         self.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         self.contactos = []
 

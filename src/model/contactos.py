@@ -1,13 +1,9 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from src.model.db import Base
-
 
 import re
 from src.model.excepciones import (InvalidEmailError, InvalidPhoneNumberError, InvalidEmailTooLong, ContactError)
 
 
-class Contacto(Base):
-    __tablename__ = 'contacto'
+class Contacto:
 
     """
     Clase que representa un contacto dentro del sistema de gestión.
@@ -24,13 +20,6 @@ class Contacto(Base):
         InvalidEmailError: Si el email tiene un formato inválido.
         InvalidEmailTooLong: Si el email excede la cantidad máxima de caracteres.
     """
-    id = Column(Integer, primary_key=True)
-    nombre = Column(String(50), nullable=False)
-    categoria = Column(String(30), default="Sin categoría")
-    email = Column(String(100))
-    telefono = Column(String(20))
-    usuario_id = Column(Integer, ForeignKey('usuario.id'), nullable=False)
-    
     def __init__(self, nombre: str, telefono: str, email: str, categoria: str = "Sin categoría", usuario_id: int = None):
         """
         Inicializa un nuevo contacto validando sus campos.

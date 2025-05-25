@@ -1,21 +1,18 @@
 import os
 from src.model.contactos import Contacto
-from src.model.db import SessionLocal, Contacto
 from src.model.excepciones import (
     DuplicateContactError, InvalidPhoneNumberError, InvalidEmailError,
     ContactNotFoundError, ContactError, VCFExportError, VCFImportError
 )
 
 class GestorDeContactos:
+    def __init__(self, usuario):
+        self.usuario = usuario
     """
     Clase para gestionar una lista de contactos, incluyendo operaciones de agregar,
     eliminar, editar, buscar, filtrar y exportar/importar contactos en formato VCF.
     """
-
-    def __init__(self):
-        self.db = SessionLocal()
-
-    def agregar_contacto(self, nombre, categoria, email, telefono, usuario_id):
+    def agregar_contacto(self, contacto):
         """
         Agrega un contacto a la lista si su email no está duplicado.
 
@@ -25,22 +22,10 @@ class GestorDeContactos:
         Raises:
             DuplicateContactError: Si ya existe un contacto con el mismo email.
         """
-        if self.db.query(Contacto).filter_by(email=email).first():
-            raise DuplicateContactError(f"Ya existe un contacto con email {email}")
-        try:
-            nuevo_contacto = Contacto(
-                nombre=nombre,
-                categoria=categoria,
-                email=email,
-                telefono=telefono,
-                usuario_id=usuario_id
-            )
-            self.db.add(nuevo_contacto)
-            self.db.commit()
-            return "Contacto agregado exitosamente."
-        except Exception as e:
-            self.db.rollback()
-            return f"Error: {e}"
+        if any(c.email == contacto.email for c in self.usuario.contactos):
+            raise ValueError(f"El contacto con el correo {contacto.email} ya existe.")
+        self.usuario.contactos.append(contacto)
+        return "Contacto agregado exitosamente."
 
     def eliminar_contacto(self, email: str):
         """
@@ -81,7 +66,7 @@ class GestorDeContactos:
         Returns:
             list: Lista completa de contactos.
         """
-        return self.db.query(Contacto).all()
+        return self.usuario.contactos
 
     def ordenar_contactos(self, clave="nombre"):
         """

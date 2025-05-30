@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Contactos</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        input, select, button { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+        th { background: #eee; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestor de Contactos</h1>
+
+        <form id="contact-form">
+            <input type="text" id="nombre" placeholder="Nombre" required>
+            <input type="text" id="telefono" placeholder="Teléfono" required>
+            <input type="email" id="email" placeholder="Correo electrónico" required>
+            <input type="text" id="categoria" placeholder="Categoría">
+            <button type="submit">Agregar contacto</button>
+        </form>
+
+        <input type="text" id="filtro" placeholder="Filtrar por categoría">
+        <button onclick="filtrarContactos()">Filtrar</button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Categoría</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="contactos"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let contactos = [];
+
+        document.getElementById('contact-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const nombre = document.getElementById('nombre').value;
+            const telefono = document.getElementById('telefono').value;
+            const email = document.getElementById('email').value;
+            const categoria = document.getElementById('categoria').value;
+
+            const contacto = { nombre, telefono, email, categoria };
+
+            contactos.push(contacto);
+            mostrarContactos(contactos);
+            this.reset();
+        });
+
+        function mostrarContactos(lista) {
+            const tbody = document.getElementById('contactos');
+            tbody.innerHTML = '';
+            lista.forEach((contacto, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${contacto.nombre}</td>
+                        <td>${contacto.telefono}</td>
+                        <td>${contacto.email}</td>
+                        <td>${contacto.categoria}</td>
+                        <td>
+                            <button onclick="eliminarContacto(${index})">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function eliminarContacto(index) {
+            contactos.splice(index, 1);
+            mostrarContactos(contactos);
+        }
+
+        function filtrarContactos() {
+            const filtro = document.getElementById('filtro').value.toLowerCase();
+            const filtrados = contactos.filter(c => c.categoria.toLowerCase().includes(filtro));
+            mostrarContactos(filtrados);
+        }
+    </script>
+</body>
+</html>

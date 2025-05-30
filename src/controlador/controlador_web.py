@@ -1,55 +1,31 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import render_template, jsonify, request
 from src.model.gestor_contactos import GestorDeContactos
 from src.model.contactos import Contacto
-from src.model.excepciones import *
+from src.model.excepciones import ContactError, InvalidEmailError, InvalidPhoneNumberError
 
-app = Flask(__name__)
 gestor = GestorDeContactos()
 
-@app.route('/')
-def index():
-    contactos = gestor.listar_contactos()
-    return render_template('index.html', contactos=contactos)
+def register_routes(app):
+    @app.route('/')
+    def index():
+        return render_template('index.html')
 
-@app.route('/agregar', methods=['GET', 'POST'])
-def agregar():
-    if request.method == 'POST':
+    @app.route('/api/contactos', methods=['GET'])
+    def obtener_contactos():
+        contactos = gestor.listar_contactos()
+        return jsonify([c.to_dict() for c in contactos])
+
+    @app.route('/api/contactos', methods=['POST'])
+    def agregar_contacto():
+        data = request.get_json()
         try:
-            nombre = request.form['nombre']
-            telefono = request.form['telefono']
-            email = request.form['email']
-            categoria = request.form['categoria']
-            contacto = Contacto(nombre, telefono, email, categoria)
+            contacto = Contacto(
+                nombre=data['nombre'],
+                telefono=data['telefono'],
+                email=data['email'],
+                categoria=data['categoria']
+            )
             gestor.agregar_contacto(contacto)
-            return redirect(url_for('index'))
-        except ContactError as e:
-            return f"Error: {e}"
-    return render_template('agregar.html')
-
-@app.route('/editar/<nombre>', methods=['GET', 'POST'])
-def editar(nombre):
-    contacto = gestor.buscar_contacto(nombre)
-    if request.method == 'POST':
-        try:
-            telefono = request.form['telefono']
-            email = request.form['email']
-            categoria = request.form['categoria']
-            gestor.editar_contacto(nombre, telefono=telefono, email=email, categoria=categoria)
-            return redirect(url_for('index'))
-        except ContactError as e:
-            return f"Error: {e}"
-    return render_template('editar.html', contacto=contacto)
-
-@app.route('/eliminar/<nombre>')
-def eliminar(nombre):
-    try:
-        gestor.eliminar_contacto(nombre)
-        return redirect(url_for('index'))
-    except ContactError as e:
-        return f"Error: {e}"
-
-@app.route('/buscar', methods=['GET'])
-def buscar():
-    categoria = request.args.get('categoria', '')
-    contactos = gestor.filtrar_contacto(categoria)
-    return render_template('index.html', contactos=contactos)
+            return jsonify({'mensaje': 'Contacto agregado exitosamente'}), 201
+        except (ContactError, InvalidEmailError, InvalidPhoneNumberError) as e:
+            return jsonify({'error': str(e)}), 400

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editar Contacto</title>
+</head>
+<body>
+    <h1>Editar Contacto: {{ contacto.nombre }}</h1>
+    <form method="post">
+        Teléfono: <input type="text" name="telefono" value="{{ contacto.telefono }}"><br>
+        Email: <input type="email" name="email" value="{{ contacto.email }}"><br>
+        Categoría: <input type="text" name="categoria" value="{{ contacto.categoria }}"><br>
+        <input type="submit" value="Guardar cambios">
+    </form>
+</body>
+</html>
